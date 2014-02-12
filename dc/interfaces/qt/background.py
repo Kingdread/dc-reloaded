@@ -3,7 +3,8 @@ import time
 
 class DCThread(threading.Thread):
     def __init__(self, interface):
-        super().__init__(daemon=True)
+        super().__init__()
+        self.daemon = True
         self.d = interface.d
         self.interface = interface
         self._r = threading.Event()
@@ -18,7 +19,6 @@ class DCThread(threading.Thread):
     def run(self):
         while self._r.wait():
             self.d.cycle()
-            self.interface.update()
             if not self.d.running:
                 self._r.clear()
             time.sleep(self.interface.delay)

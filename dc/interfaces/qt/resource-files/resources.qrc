@@ -6,6 +6,9 @@
     <file>step.png</file>
     <file>execute.png</file>
   </qresource>
+  <qresource prefix="fonts">
+    <file>DejaVuSansMono.ttf</file>
+  </qresource>
   <qresource prefix="images">
     <file>bg.png</file>
   </qresource>

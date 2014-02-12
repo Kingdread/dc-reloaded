@@ -22,6 +22,7 @@ class QtInterface(Interface):
     def run(self):
         import sys
         app = QtGui.QApplication(sys.argv)
+        QtGui.QFontDatabase.addApplicationFont(":/fonts/DejaVuSansMono.ttf")
         window = self.window = DCWindow(self)
         window.ui.visual.setD(self.d)
         window.show()

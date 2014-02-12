@@ -67,7 +67,7 @@
       </property>
       <property name="font">
        <font>
-        <family>Monospace</family>
+        <family>DejaVu Sans Mono</family>
        </font>
       </property>
      </widget>

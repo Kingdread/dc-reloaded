@@ -14,7 +14,7 @@ class DCRegisterView(QtGui.QWidget):
         if self.d is None:
             return
         painter.setPen(QtCore.Qt.white)
-        painter.setFont(QtGui.QFont("Monospace", 13))
+        painter.setFont(QtGui.QFont("DejaVuSansMono", 13))
 
         painter.drawText(30, 135, self.d.sp.bin)
         painter.drawText(30, 150, self.d.bp.bin)

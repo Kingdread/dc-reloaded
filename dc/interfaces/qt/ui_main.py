@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main.ui'
 #
-# Created: Tue Feb 11 20:26:45 2014
+# Created: Wed Feb 12 18:37:45 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -56,7 +56,7 @@ class Ui_DCWindow(object):
         self.RAM = QtGui.QListView(self.centralwidget)
         self.RAM.setMaximumSize(QtCore.QSize(16777215, 16777215))
         font = QtGui.QFont()
-        font.setFamily(_fromUtf8("Monospace"))
+        font.setFamily(_fromUtf8("DejaVu Sans Mono"))
         self.RAM.setFont(font)
         self.RAM.setObjectName(_fromUtf8("RAM"))
         self.horizontalLayout_2.addWidget(self.RAM)

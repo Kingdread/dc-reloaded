@@ -83,6 +83,8 @@ class DC():
         self.ar.set(0)
         self.sp.set(0)
         self.bp.set(0)
+        self.sp.set(self.maddr)
+        self.bp.set(self.maddr)
         self.running = False
         self.ram.clear()
     
@@ -90,6 +92,28 @@ class DC():
         opc = cell >> self.conf.addrwidth
         mn = self.mnemo.get(opc, "DEF")
         return mn
+
+    def parsecmd(self, cmd):
+        cmd = cmd.split()
+        c = cmd.pop(0).upper()
+        if c in self.opcodes:
+            x = self.opcodes << self.addrwidth
+            if cmd:
+                try:
+                    x |= int(cmd[0])
+                except ValueError:
+                    raise ScriptError("Invalid int: {}".format(cmd[0]))
+        elif c == "DEF":
+            try:
+                x = int(cmd[0])
+            except ValueError:
+                raise ScriptError("Invalid int: {}".format(cmd[0]))
+            except IndexError:
+                raise ScriptError("DEF requires a parameter")
+        else:
+            raise ScriptError("Invalid instruction: {}".format(c))
+        return x & (2**self.cellwidth - 1)
+        
         
     @staticmethod
     def nocomment(line):
