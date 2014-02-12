@@ -1,0 +1,33 @@
+  0 DEF      0 
+  1 DEF      0 
+  2 DEF      2 
+  3 DEF      1 
+  4 DEF      0 
+  5 INM      0 
+  6 LDA      0 
+  7 DEC  
+  8 STA      2 
+  9 JNP     20 
+ 10 JSR     22 
+ 11 LDA      1 
+ 12 JPL     20 
+ 13 LDA      2 
+ 14 DEC  
+ 15 STA      2 
+ 16 DEC  
+ 17 JPL     10 
+ 18 OUT      3 
+ 19 END  
+ 20 OUT      4 
+ 21 END  
+ 22 LDA      0 
+ 23 SUB      2 
+ 24 JPL     23 
+ 25 JZE     29 
+ 26 LDA      4 
+ 27 STA      1 
+ 28 RTN  
+ 29 LDA      3 
+ 30 STA      1 
+ 31 RTN  
+

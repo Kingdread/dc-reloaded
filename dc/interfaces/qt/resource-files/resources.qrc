@@ -1,0 +1,12 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>open.png</file>
+    <file>assemble.png</file>
+    <file>stop.png</file>
+    <file>step.png</file>
+    <file>execute.png</file>
+  </qresource>
+  <qresource prefix="images">
+    <file>bg.png</file>
+  </qresource>
+</RCC>
