@@ -216,3 +216,6 @@ class DCWindow(QtGui.QMainWindow):
             else:
                 self.interface.delay = float(cmd[1])
                 self.logLine("Delay set to {}".format(self.interface.delay))
+                if delay < 0.1:
+                    self.logLine("Warning: A small delay might cause lags or a"
+                      " complete unresponsiveness of the user interface!")

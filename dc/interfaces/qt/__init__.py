@@ -12,6 +12,7 @@ class QtInterface(Interface):
         d.interface = self
         self.window = None
         self.delay = 0.05
+        self.dblock = 0
         self.thread = DCThread(self)
         self.thread.pause()
         self.thread.start()
@@ -30,7 +31,14 @@ class QtInterface(Interface):
     
     def update(self):
         if self.window:
-            self.window.updateScreen.emit()
+            if self.delay >= 1 or self.dblock == 10:
+                self.window.updateScreen.emit()
+                self.dblock = 0
+            else:
+                # This is important, as otherwise we'd experience great lag
+                # if the delay is too small and updateScreen gets called
+                # too often. Feel free to adjust the limit
+                self.dblock += 1
 
     def startExecution(self):
         self.thread.resume()
