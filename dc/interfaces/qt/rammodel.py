@@ -27,6 +27,8 @@ class RAMModel(QtCore.QAbstractItemModel):
 
     def setData(self, index, value, role):
         if role == QtCore.Qt.EditRole:
+            if not value:
+                return False
             cell = index.row()
             try:
                 self.d.ram[cell] = self.d.parsecmd(value)

@@ -81,8 +81,6 @@ class DC():
         self.pc.set(0)
         self.ac.set(0)
         self.ar.set(0)
-        self.sp.set(0)
-        self.bp.set(0)
         self.sp.set(self.maddr)
         self.bp.set(self.maddr)
         self.running = False
@@ -97,7 +95,7 @@ class DC():
         cmd = cmd.split()
         c = cmd.pop(0).upper()
         if c in self.opcodes:
-            x = self.opcodes << self.addrwidth
+            x = self.opcodes[c] << self.conf.addrwidth
             if cmd:
                 try:
                     x |= int(cmd[0])

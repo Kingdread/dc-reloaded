@@ -40,9 +40,19 @@ class DCWindow(QtGui.QMainWindow):
         s.clear()
         s.select(self.model.index(self.interface.d.pc.value, 0, None), QtGui.QItemSelectionModel.Select)
         self._selectionlock = False
-    
+
+    def _updateRegisters(self):
+        d = self.interface.d
+        self.ui.valueAC.setText(str(d.ac.signed_value))
+        self.ui.valueDR.setText(str(d.dr.signed_value))
+        self.ui.valueAR.setText(str(d.ar.value))
+        self.ui.valuePC.setText(str(d.pc.value))
+        self.ui.valueSP.setText(str(d.sp.value))
+        self.ui.valueBP.setText(str(d.bp.value))
+
     def _updateScreen(self):
         self.ui.visual.repaint()
+        self._updateRegisters()
         self.model.update()
         self._updateSelection()
 
@@ -59,7 +69,10 @@ class DCWindow(QtGui.QMainWindow):
             except Empty:
                 break
             self.logLine("Output: {}".format(item))
-            QtGui.QMessageBox.information(self, "Output", str(item))
+            # Those messages can get quite disturbing if your program procudes
+            # many of those. Maybe let this commented out until there's a 
+            # better solution
+            # QtGui.QMessageBox.information(self, "Output", str(item))
     
     def _updatePC(self, selected, deselected):
         if not self._selectionlock:
