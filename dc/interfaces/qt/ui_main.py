@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main.ui'
 #
-# Created: Thu Feb 13 17:45:24 2014
+# Created: Thu Feb 13 17:54:23 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -159,16 +159,22 @@ class Ui_DCWindow(object):
     def retranslateUi(self, DCWindow):
         DCWindow.setWindowTitle(_translate("DCWindow", "DC reloaded", None))
         self.registerGroup.setTitle(_translate("DCWindow", "Register", None))
+        self.labelAC.setToolTip(_translate("DCWindow", "Accumulator", None))
         self.labelAC.setText(_translate("DCWindow", "AC =", None))
         self.valueAC.setText(_translate("DCWindow", "0", None))
+        self.labelDR.setToolTip(_translate("DCWindow", "Data Register", None))
         self.labelDR.setText(_translate("DCWindow", "DR =", None))
         self.valueDR.setText(_translate("DCWindow", "0", None))
+        self.labelAR.setToolTip(_translate("DCWindow", "Address Register", None))
         self.labelAR.setText(_translate("DCWindow", "AR =", None))
         self.valueAR.setText(_translate("DCWindow", "0", None))
+        self.labelPC.setToolTip(_translate("DCWindow", "Program Counter", None))
         self.labelPC.setText(_translate("DCWindow", "PC =", None))
         self.valuePC.setText(_translate("DCWindow", "0", None))
+        self.labelSP.setToolTip(_translate("DCWindow", "Stack Pointer", None))
         self.labelSP.setText(_translate("DCWindow", "SP =", None))
         self.valueSP.setText(_translate("DCWindow", "127", None))
+        self.labelBP.setToolTip(_translate("DCWindow", "Base Pointer", None))
         self.labelBP.setText(_translate("DCWindow", "BP =", None))
         self.valueBP.setText(_translate("DCWindow", "127", None))
         self.toolBar.setWindowTitle(_translate("DCWindow", "toolBar", None))

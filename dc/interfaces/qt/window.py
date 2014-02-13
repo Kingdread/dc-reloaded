@@ -104,6 +104,7 @@ class DCWindow(QtGui.QMainWindow):
         try:
             self.interface.d.load(content)
             self.logLine("Loaded {}".format(name))
+            self._updateScreen()
         except ScriptError as se:
             QtGui.QMessageBox.critical(self, "Error",
               "Invalid script file (maybe you forgot to assemble it?):<br><b> {}".format(se.msg))
@@ -189,6 +190,8 @@ class DCWindow(QtGui.QMainWindow):
         elif c in {"c", "clear"}:
             self.interface.pauseExecution()
             self.interface.d.reset()
+            self.ui.history.setPlainText("")
+            self.logLine("Cleared")
         elif c == "pc":
             try:
                 self.interface.d.pc.set(int(cmd[1]))
