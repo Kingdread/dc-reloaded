@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from dc.parts import Register, RAM
-from dc.errors import NoInputValue, ScriptError, AssembleError
+from dc.errors import NoInputValue, ScriptError, AssembleError, Overflow
 
 class DCConfig():
     def __init__(self):
@@ -260,9 +260,13 @@ class DC():
         self.savemem()
 
     def ADD(self):
+        if self.ac.will_overflow(self.ac.signed_value + self.dr.signed_value):
+            raise Overflow
         self.ac += self.dr
 
     def SUB(self):
+        if self.ac.will_overflow(self.ac.signed_value - self.dr.signed_value):
+            raise Overflow
         self.ac -= self.dr
 
     def JMP(self):
@@ -340,9 +344,13 @@ class DC():
         self.ac.neg()
 
     def INC(self):
+        if self.ac.will_overflow(self.ac.signed_value + 1):
+            raise Overflow
         self.ac.inc()
 
     def DEC(self):
+        if self.ac.will_overflow(self.ac.signed_value - 1):
+            raise Overflow
         self.ac.dec()
 
     def OUT(self):
@@ -385,11 +393,15 @@ class DC():
     def ADDS(self):
         self.ar.set(self.sp.value + (self.ir.value & self.maddr))
         self.getmem()
+        if self.ac.will_overflow(self.ac.signed_value + self.dr.signed_value):
+            raise Overflow
         self.ac += self.dr
 
     def SUBS(self):
         self.ar.set(self.sp.value + (self.ir.value & self.maddr))
         self.getmem()
+        if self.ac.will_overflow(self.ac.signed_value - self.dr.signed_value):
+            raise Overflow
         self.ac -= self.dr
 
     def SPBP(self):
@@ -423,11 +435,15 @@ class DC():
     def ADDB(self):
         self.ar.set(self.bp.value + (self.ir.value & self.maddr))
         self.getmem()
+        if self.ac.will_overflow(self.ac.signed_value + self.dr.signed_value):
+            raise Overflow
         self.ac += self.dr
 
     def SUBB(self):
         self.ar.set(self.bp.value + (self.ir.value & self.maddr))
         self.getmem()
+        if self.ac.will_overflow(self.ac.signed_value - self.dr.signed_value):
+            raise Overflow
         self.ac -= self.dr
 
     def OUTS(self):

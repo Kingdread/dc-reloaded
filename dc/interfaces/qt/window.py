@@ -9,6 +9,7 @@ class DCWindow(QtGui.QMainWindow):
     updateScreen = QtCore.pyqtSignal()
     getInput = QtCore.pyqtSignal()
     showOutput = QtCore.pyqtSignal()
+    showErrors = QtCore.pyqtSignal()
 
     def __init__(self, interface):
         super().__init__()
@@ -31,6 +32,7 @@ class DCWindow(QtGui.QMainWindow):
 
         self.getInput.connect(self._getInput)
         self.showOutput.connect(self._showOutput)
+        self.showErrors.connect(self._showErrors)
         
         self.updateScreen.connect(self._updateScreen)
 
@@ -57,7 +59,8 @@ class DCWindow(QtGui.QMainWindow):
         self._updateSelection()
 
     def _getInput(self):
-        num = QtGui.QInputDialog.getInt(self, "Input", "Enter a value:", min=-4096, max=4095)
+        num = QtGui.QInputDialog.getInt(self, "Input", "Enter a value:",
+          min=-4096, max=4095) # TODO: fix those hardcoded values
         if num[1]:
             self.logLine("Input: {}".format(num[0]))
         self.interface.inputq.put(num)
@@ -73,6 +76,15 @@ class DCWindow(QtGui.QMainWindow):
             # many of those. Maybe let this commented out until there's a 
             # better solution
             # QtGui.QMessageBox.information(self, "Output", str(item))
+
+    def _showErrors(self):
+        while True:
+            try:
+                item = self.interface.errorq.get(block=False)
+            except Empty:
+                break
+            self.logLine("Error: {}".format(item))
+            QtGui.QMessageBox.critical(self, "Error", str(item))
     
     def _updatePC(self, selected, deselected):
         if not self._selectionlock:

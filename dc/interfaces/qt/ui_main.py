@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main.ui'
 #
-# Created: Thu Feb 13 17:54:23 2014
+# Created: Thu Feb 13 18:16:10 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -190,7 +190,7 @@ class Ui_DCWindow(object):
         self.actionAssemble.setText(_translate("DCWindow", "Assemble", None))
         self.actionAssemble.setToolTip(_translate("DCWindow", "Open the assembler", None))
         self.actionAssemble.setShortcut(_translate("DCWindow", "Ctrl+A", None))
-        self.actionOpen.setText(_translate("DCWindow", "open", None))
+        self.actionOpen.setText(_translate("DCWindow", "Open", None))
         self.actionOpen.setToolTip(_translate("DCWindow", "Open a file", None))
 
 from dc.interfaces.qt.registerview import DCRegisterView

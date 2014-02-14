@@ -24,6 +24,8 @@ class Register():
         self.name = name
         self.bits = bits
         self.maxvalue = 2 ** bits - 1
+        self.signed_max = 2 ** (bits - 1) - 1
+        self.signed_min = -1 * 2 ** (bits - 1)
         self.value = value & self.maxvalue
 
     def dec(self):
@@ -46,6 +48,9 @@ class Register():
 
     def to(self, register):
         register.set(self.value)
+
+    def will_overflow(self, i):
+        return i > self.signed_max or i < self.signed_min
 
     @property
     def signed_value(self):

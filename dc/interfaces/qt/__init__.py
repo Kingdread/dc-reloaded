@@ -11,7 +11,7 @@ class QtInterface(Interface):
         self.d = d
         d.interface = self
         self.window = None
-        self.delay = 0.05
+        self.delay = 0.1
         self.dblock = 0
         self.thread = DCThread(self)
         self.thread.pause()
@@ -19,6 +19,7 @@ class QtInterface(Interface):
 
         self.inputq = Queue()
         self.outq = Queue()
+        self.errorq = Queue()
     
     def run(self):
         import sys
@@ -31,7 +32,7 @@ class QtInterface(Interface):
     
     def update(self):
         if self.window:
-            if self.delay >= 1 or self.dblock == 10:
+            if self.delay >= 0.1 or self.dblock == 10:
                 self.window.updateScreen.emit()
                 self.dblock = 0
             else:
@@ -39,6 +40,10 @@ class QtInterface(Interface):
                 # if the delay is too small and updateScreen gets called
                 # too often. Feel free to adjust the limit
                 self.dblock += 1
+
+    def report(self, error):
+        self.errorq.put(error)
+        self.window.showErrors.emit()
 
     def startExecution(self):
         self.thread.resume()
@@ -48,13 +53,16 @@ class QtInterface(Interface):
 
     def step(self):
         self.d.cycle()
+        self.window.updateScreen.emit()
 
     def getInput(self):
+        walking = self.thread._r.is_set()
         self.thread.pause()
         self.window.getInput.emit()
         i = self.inputq.get()
         if i[1]:
-            self.thread.resume()
+            if walking:
+                self.thread.resume()
             return i[0]
         else:
             raise NoInputValue

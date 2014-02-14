@@ -294,7 +294,7 @@
      <normaloff>:/icons/open.png</normaloff>:/icons/open.png</iconset>
    </property>
    <property name="text">
-    <string>open</string>
+    <string>Open</string>
    </property>
    <property name="toolTip">
     <string>Open a file</string>
