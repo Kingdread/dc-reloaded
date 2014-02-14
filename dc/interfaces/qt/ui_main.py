@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main.ui'
 #
-# Created: Thu Feb 13 18:16:10 2014
+# Created: Fri Feb 14 19:43:32 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -27,6 +27,9 @@ class Ui_DCWindow(object):
     def setupUi(self, DCWindow):
         DCWindow.setObjectName(_fromUtf8("DCWindow"))
         DCWindow.resize(800, 600)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/cpu.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        DCWindow.setWindowIcon(icon)
         self.centralwidget = QtGui.QWidget(DCWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.horizontalLayout_4 = QtGui.QHBoxLayout(self.centralwidget)
@@ -123,29 +126,29 @@ class Ui_DCWindow(object):
         self.toolBar.setObjectName(_fromUtf8("toolBar"))
         DCWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
         self.actionRun = QtGui.QAction(DCWindow)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/execute.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionRun.setIcon(icon)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/execute.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionRun.setIcon(icon1)
         self.actionRun.setObjectName(_fromUtf8("actionRun"))
         self.actionStep = QtGui.QAction(DCWindow)
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/step.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionStep.setIcon(icon1)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/step.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionStep.setIcon(icon2)
         self.actionStep.setObjectName(_fromUtf8("actionStep"))
         self.actionStop = QtGui.QAction(DCWindow)
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/stop.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionStop.setIcon(icon2)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/stop.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionStop.setIcon(icon3)
         self.actionStop.setObjectName(_fromUtf8("actionStop"))
         self.actionAssemble = QtGui.QAction(DCWindow)
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/assemble.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionAssemble.setIcon(icon3)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/assemble.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionAssemble.setIcon(icon4)
         self.actionAssemble.setObjectName(_fromUtf8("actionAssemble"))
         self.actionOpen = QtGui.QAction(DCWindow)
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/open.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionOpen.setIcon(icon4)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/open.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionOpen.setIcon(icon5)
         self.actionOpen.setObjectName(_fromUtf8("actionOpen"))
         self.toolBar.addAction(self.actionRun)
         self.toolBar.addAction(self.actionStep)

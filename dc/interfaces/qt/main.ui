@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>DC reloaded</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resource-files/resources.qrc">
+    <normaloff>:/icons/cpu.png</normaloff>:/icons/cpu.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_4">
     <item>
