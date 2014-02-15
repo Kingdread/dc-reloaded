@@ -2,6 +2,7 @@
 
 from dc.parts import Register, RAM
 from dc.errors import NoInputValue, ScriptError, AssembleError, Overflow
+from threading import RLock
 
 class DCConfig():
     def __init__(self):
@@ -74,17 +75,19 @@ class DC():
         self.running = False
 
         self.interface = None
+        self.lock = RLock()
     
     def reset(self):
-        self.ir.set(0)
-        self.dr.set(0)
-        self.pc.set(0)
-        self.ac.set(0)
-        self.ar.set(0)
-        self.sp.set(self.maddr)
-        self.bp.set(self.maddr)
-        self.running = False
-        self.ram.clear()
+        with self.lock:
+            self.ir.set(0)
+            self.dr.set(0)
+            self.pc.set(0)
+            self.ac.set(0)
+            self.ar.set(0)
+            self.sp.set(self.maddr)
+            self.bp.set(self.maddr)
+            self.running = False
+            self.ram.clear()
     
     def getcmd(self, cell):
         opc = cell >> self.conf.addrwidth
@@ -212,7 +215,8 @@ class DC():
                     full = cmd | int(line[2])
                 except ValueError:
                     raise ScriptError("Not a valid address: {} (line {})".format(line[2], no))
-            self.ram[addr] = full
+            with self.lock:
+                self.ram[addr] = full
 
     def getmem(self):
         data = self.ram[self.ar.value]
@@ -227,30 +231,30 @@ class DC():
             self.cycle()
 
     def cycle(self):
-        self.pc.to(self.ar)
-        self.getmem()
-        self.dr.to(self.ir)
-        cmd = self.ir.value >> (self.conf.addrwidth)
-        adr = self.ir.value & self.maddr
-        #print(self.pc.value, self.mnemo.get(cmd, "DEF"), bin(adr), adr)
-        self.ar.set(adr)
-        self.getmem()
-        try:
-            f = self.mnemo[cmd]
-        except KeyError:
-            # DEF
-            self.pc.inc()
-            return
+        with self.lock:
+            self.pc.to(self.ar)
+            self.getmem()
+            self.dr.to(self.ir)
+            cmd = self.ir.value >> (self.conf.addrwidth)
+            adr = self.ir.value & self.maddr
+            self.ar.set(adr)
+            self.getmem()
+            try:
+                f = self.mnemo[cmd]
+            except KeyError:
+                # DEF
+                self.pc.inc()
+                return
 
-        try:
-            f = getattr(self, f)
-        except AttributeError:
-            jumped = False
-        else:
-            jumped = f()
-        if not jumped:
-            self.pc.inc()
-        self.interface.update()
+            try:
+                f = getattr(self, f)
+            except AttributeError:
+                jumped = False
+            else:
+                jumped = f()
+            if not jumped:
+                self.pc.inc()
+            self.interface.update()
 
     def LDA(self):
         self.dr.to(self.ac)

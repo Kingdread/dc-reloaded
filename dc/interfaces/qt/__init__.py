@@ -52,8 +52,9 @@ class QtInterface(Interface):
         self.thread.pause()
 
     def step(self):
-        self.d.cycle()
-        self.window.updateScreen.emit()
+        if not self.thread._r.is_set():
+            self.d.cycle()
+            self.window.updateScreen.emit()
 
     def getInput(self):
         walking = self.thread._r.is_set()
