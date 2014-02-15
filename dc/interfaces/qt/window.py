@@ -40,6 +40,8 @@ class DCWindow(QtGui.QMainWindow):
 
         self._cmdind = 0
         self._cmdhist = []
+        self.delaywarned = False
+        self.gui_enabled = True
 
     def _updateSelection(self):
         self._selectionlock = True
@@ -230,22 +232,29 @@ class DCWindow(QtGui.QMainWindow):
                 if delay <= 0:
                     raise ValueError
             except (ValueError, IndexError):
-                QtGui.QMessageBox.warning(self, "Invalid", "delay expects a"
-                  " decimal > 0 as parameter")
+                QtGui.QMessageBox.warning(self, "Invalid", "delay must be > 0")
             else:
                 self.interface.delay = float(cmd[1])
                 self.logLine("Delay set to {}".format(self.interface.delay))
-                if delay < 0.1:
+                if delay < 0.1 and not self.delaywarned:
                     self.logLine("Warning: A small delay might cause lags or a"
                       " complete unresponsiveness of the user interface!")
+                    self.delaywarned = True
+        elif c == "togglegui":
+            self.gui_enabled = not self.gui_enabled
+            self.logLine("GUI is now {}".format(
+              "enabled" if self.gui_enabled else "disabled"))
+        elif c == "update":
+            self._updateScreen()
+        elif c == "hardcore":
+            self.gui_enabled = False
+            self.interface.delay = 0.00001
+            self.logLine("Hardcore simulation is now on")
 
     def eventFilter(self, obj, event):
         if obj == self.ui.RAM and event.type() == QtCore.QEvent.KeyPress:
             key = event.key()
-            if key == QtCore.Qt.Key_Return:
-                self.interface.step()
-                return True
-            elif key == QtCore.Qt.Key_Up:
+            if key == QtCore.Qt.Key_Up:
                 if not self.interface.thread._r.is_set():
                     self.interface.d.pc.dec()
                     self._updateScreen()

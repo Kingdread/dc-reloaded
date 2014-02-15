@@ -11,7 +11,7 @@ class QtInterface(Interface):
         self.d = d
         d.interface = self
         self.window = None
-        self.delay = 0.1
+        self._delay = 0.1
         self.dblock = 0
         self.thread = DCThread(self)
         self.thread.pause()
@@ -20,7 +20,18 @@ class QtInterface(Interface):
         self.inputq = Queue()
         self.outq = Queue()
         self.errorq = Queue()
-    
+
+    @property
+    def delay(self):
+        return self._delay
+
+    @delay.setter
+    def delay(self, d):
+        if d <= 0:
+            raise ValueError("Delay must be greater than zero")
+        self._delay = d
+        self.dblock = 0.1 / d
+
     def run(self):
         import sys
         app = QtGui.QApplication(sys.argv)
@@ -31,8 +42,8 @@ class QtInterface(Interface):
         sys.exit(app.exec_())
     
     def update(self):
-        if self.window:
-            if self.delay >= 0.1 or self.dblock == 10:
+        if self.window and self.window.gui_enabled:
+            if self._delay >= 0.1 or self.dblock == 10:
                 self.window.updateScreen.emit()
                 self.dblock = 0
             else:
