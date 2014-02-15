@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>849</width>
     <height>600</height>
    </rect>
   </property>
@@ -92,7 +92,7 @@
            <item row="0" column="1">
             <widget class="QLabel" name="valueAC">
              <property name="text">
-              <string>0</string>
+              <string>    0</string>
              </property>
             </widget>
            </item>
@@ -109,7 +109,7 @@
            <item row="1" column="1">
             <widget class="QLabel" name="valueDR">
              <property name="text">
-              <string>0</string>
+              <string>    0</string>
              </property>
             </widget>
            </item>
@@ -126,7 +126,7 @@
            <item row="2" column="1">
             <widget class="QLabel" name="valueAR">
              <property name="text">
-              <string>0</string>
+              <string>    0</string>
              </property>
             </widget>
            </item>
@@ -143,7 +143,7 @@
            <item row="3" column="1">
             <widget class="QLabel" name="valuePC">
              <property name="text">
-              <string>0</string>
+              <string>    0</string>
              </property>
             </widget>
            </item>
@@ -160,7 +160,7 @@
            <item row="4" column="1">
             <widget class="QLabel" name="valueSP">
              <property name="text">
-              <string>127</string>
+              <string>  127</string>
              </property>
             </widget>
            </item>
@@ -177,7 +177,7 @@
            <item row="5" column="1">
             <widget class="QLabel" name="valueBP">
              <property name="text">
-              <string>127</string>
+              <string>  127</string>
              </property>
             </widget>
            </item>
@@ -210,7 +210,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>849</width>
      <height>19</height>
     </rect>
    </property>

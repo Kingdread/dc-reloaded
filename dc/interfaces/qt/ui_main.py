@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main.ui'
 #
-# Created: Fri Feb 14 19:43:32 2014
+# Created: Sat Feb 15 18:23:32 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_DCWindow(object):
     def setupUi(self, DCWindow):
         DCWindow.setObjectName(_fromUtf8("DCWindow"))
-        DCWindow.resize(800, 600)
+        DCWindow.resize(849, 600)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/cpu.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         DCWindow.setWindowIcon(icon)
@@ -116,7 +116,7 @@ class Ui_DCWindow(object):
         self.horizontalLayout_4.addWidget(self.RAM)
         DCWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(DCWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 19))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 849, 19))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         DCWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(DCWindow)
@@ -164,22 +164,22 @@ class Ui_DCWindow(object):
         self.registerGroup.setTitle(_translate("DCWindow", "Register", None))
         self.labelAC.setToolTip(_translate("DCWindow", "Accumulator", None))
         self.labelAC.setText(_translate("DCWindow", "AC =", None))
-        self.valueAC.setText(_translate("DCWindow", "0", None))
+        self.valueAC.setText(_translate("DCWindow", "    0", None))
         self.labelDR.setToolTip(_translate("DCWindow", "Data Register", None))
         self.labelDR.setText(_translate("DCWindow", "DR =", None))
-        self.valueDR.setText(_translate("DCWindow", "0", None))
+        self.valueDR.setText(_translate("DCWindow", "    0", None))
         self.labelAR.setToolTip(_translate("DCWindow", "Address Register", None))
         self.labelAR.setText(_translate("DCWindow", "AR =", None))
-        self.valueAR.setText(_translate("DCWindow", "0", None))
+        self.valueAR.setText(_translate("DCWindow", "    0", None))
         self.labelPC.setToolTip(_translate("DCWindow", "Program Counter", None))
         self.labelPC.setText(_translate("DCWindow", "PC =", None))
-        self.valuePC.setText(_translate("DCWindow", "0", None))
+        self.valuePC.setText(_translate("DCWindow", "    0", None))
         self.labelSP.setToolTip(_translate("DCWindow", "Stack Pointer", None))
         self.labelSP.setText(_translate("DCWindow", "SP =", None))
-        self.valueSP.setText(_translate("DCWindow", "127", None))
+        self.valueSP.setText(_translate("DCWindow", "  127", None))
         self.labelBP.setToolTip(_translate("DCWindow", "Base Pointer", None))
         self.labelBP.setText(_translate("DCWindow", "BP =", None))
-        self.valueBP.setText(_translate("DCWindow", "127", None))
+        self.valueBP.setText(_translate("DCWindow", "  127", None))
         self.toolBar.setWindowTitle(_translate("DCWindow", "toolBar", None))
         self.actionRun.setText(_translate("DCWindow", "Run", None))
         self.actionRun.setToolTip(_translate("DCWindow", "Run the current script", None))

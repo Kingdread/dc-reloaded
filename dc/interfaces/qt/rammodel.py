@@ -1,6 +1,13 @@
 from dc.errors import ScriptError
 from PyQt4 import QtCore
 
+def signed_value(val, bits):
+    leftmost = val >> (bits - 1)
+    if leftmost:
+        val = (~(val - 1)) & (2 ** bits - 1)
+        val = -1 * val
+    return val
+
 class RAMModel(QtCore.QAbstractItemModel):
     def __init__(self, d):
         super().__init__()
@@ -20,10 +27,17 @@ class RAMModel(QtCore.QAbstractItemModel):
 
     def data(self, index, role):
         if role == QtCore.Qt.DisplayRole:
-            cell = self.d.ram[index.row()]
-            return("{adr:3} {cmd:4} {arg:3} | {val:0{w}b}".format(
-                adr=index.row(), cmd=self.d.getcmd(cell), arg=(cell & self.d.maddr),
-                val=cell, w=self.d.cellwidth))
+            adr = index.row()
+            cell = self.d.ram[adr]
+            cmd = self.d.getcmd(cell)
+            sval = signed_value(cell, self.d.cellwidth)
+            if cmd == "DEF":
+                arg = sval
+            else:
+                arg = cell & self.d.maddr
+            return("{adr:3} {cmd:4} {arg:5} | {val:0{w}b} ({sval})".format(
+                adr=adr, cmd=cmd, arg=arg, val=cell, w=self.d.cellwidth,
+                sval=sval))
 
     def setData(self, index, value, role):
         if role == QtCore.Qt.EditRole:

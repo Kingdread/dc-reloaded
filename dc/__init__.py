@@ -95,26 +95,33 @@ class DC():
         mn = self.mnemo.get(opc, "DEF")
         return mn
 
-    def parsecmd(self, cmd):
-        cmd = cmd.split()
-        c = cmd.pop(0).upper()
-        if c in self.opcodes:
-            x = self.opcodes[c] << self.conf.addrwidth
-            if cmd:
-                try:
-                    x |= int(cmd[0])
-                except ValueError:
-                    raise ScriptError("Invalid int: {}".format(cmd[0]))
-        elif c == "DEF":
+    def parsecmd(self, line):
+        try:
+            line = line.split()
+        except AttributeError:
+            pass
+        cmd = line[0].upper()
+        if cmd == "DEF":
             try:
-                x = int(cmd[0])
+                full = int(line[1])
             except ValueError:
-                raise ScriptError("Invalid int: {}".format(cmd[0]))
-            except IndexError:
-                raise ScriptError("DEF requires a parameter")
+                raise ScriptError("Not a valid integer: {} (line {})".format(line[2], no))
         else:
-            raise ScriptError("Invalid instruction: {}".format(c))
-        return x & (2**self.cellwidth - 1)
+            try:
+                cmd = self.opcodes[line[0].upper()]
+            except KeyError:
+                raise ScriptError("Invalid instruction: {} (line {})".format(line[1], no))
+            cmd <<= self.conf.addrwidth
+            try:
+                target = int(line[1])
+                if target > self.maddr:
+                    raise InvalidAddress("The max value is {} (line {})".format(self.maddr, no))
+            except ValueError:
+                raise InvalidAddress("Not a valid address: {} (line {})".format(line[2], no))
+            else:
+                full = cmd | target
+        
+        return full & (2 ** self.cellwidth - 1)
         
         
     @staticmethod
@@ -183,7 +190,7 @@ class DC():
 
     def load(self, lines, clear=True):
         if clear:
-            self.ram.clear()
+            self.reset()
         for no, line in enumerate(self.nocomment(l) for l in lines):
             # compatibility bit, idk what this character is for:
             if line == "\x1a":
@@ -200,25 +207,7 @@ class DC():
                 addr = int(line[0])
             except ValueError:
                 raise ScriptError("Not a valid address: {} (line {})".format(line[0], no))
-            cmd = line[1].upper()
-            if cmd == "DEF":
-                try:
-                    full = int(line[2])
-                except ValueError:
-                    raise ScriptError("Not a valid integer: {} (line {})".format(line[2], no))
-            else:
-                try:
-                    cmd = self.opcodes[line[1].upper()]
-                except KeyError:
-                    raise ScriptError("Invalid instruction: {} (line {})".format(line[1], no))
-                cmd <<= self.conf.addrwidth
-                try:
-                    target = int(line[2])
-                    if target > self.maddr:
-                        raise InvalidAddress("The max value is {} (line {})".format(self.maddr, no))
-                    full = cmd | target
-                except ValueError:
-                    raise InvalidAddress("Not a valid address: {} (line {})".format(line[2], no))
+            full = self.parsecmd(line[1:])
             with self.lock:
                 self.ram[addr] = full
 

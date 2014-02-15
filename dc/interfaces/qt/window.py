@@ -19,6 +19,8 @@ class DCWindow(QtGui.QMainWindow):
 
         self.model = RAMModel(self.interface.d)
         self.ui.RAM.setModel(self.model)
+        self.ui.RAM.installEventFilter(self)
+        self.ui.command.installEventFilter(self)
 
         self.ui.actionRun.triggered.connect(self.interface.startExecution)
         self.ui.actionStep.triggered.connect(self.interface.step)
@@ -36,6 +38,9 @@ class DCWindow(QtGui.QMainWindow):
         
         self.updateScreen.connect(self._updateScreen)
 
+        self._cmdind = 0
+        self._cmdhist = []
+
     def _updateSelection(self):
         self._selectionlock = True
         s = self.ui.RAM.selectionModel()
@@ -45,12 +50,12 @@ class DCWindow(QtGui.QMainWindow):
 
     def _updateRegisters(self):
         d = self.interface.d
-        self.ui.valueAC.setText(str(d.ac.signed_value))
-        self.ui.valueDR.setText(str(d.dr.signed_value))
-        self.ui.valueAR.setText(str(d.ar.value))
-        self.ui.valuePC.setText(str(d.pc.value))
-        self.ui.valueSP.setText(str(d.sp.value))
-        self.ui.valueBP.setText(str(d.bp.value))
+        self.ui.valueAC.setText("{:5}".format(d.ac.signed_value))
+        self.ui.valueDR.setText("{:5}".format(d.dr.signed_value))
+        self.ui.valueAR.setText("{:5}".format(d.ar.value))
+        self.ui.valuePC.setText("{:5}".format(d.pc.value))
+        self.ui.valueSP.setText("{:5}".format(d.sp.value))
+        self.ui.valueBP.setText("{:5}".format(d.bp.value))
 
     def _updateScreen(self):
         self.ui.visual.repaint()
@@ -166,6 +171,8 @@ class DCWindow(QtGui.QMainWindow):
 
     def execCmdline(self):
         cmd = self.ui.command.text()
+        self._cmdhist.append(cmd)
+        self._cmdind = 0
         self.ui.command.setText("")
         if not cmd:
             self.interface.step()
@@ -231,3 +238,39 @@ class DCWindow(QtGui.QMainWindow):
                 if delay < 0.1:
                     self.logLine("Warning: A small delay might cause lags or a"
                       " complete unresponsiveness of the user interface!")
+
+    def eventFilter(self, obj, event):
+        if obj == self.ui.RAM and event.type() == QtCore.QEvent.KeyPress:
+            key = event.key()
+            if key == QtCore.Qt.Key_Return:
+                self.interface.step()
+                return True
+            elif key == QtCore.Qt.Key_Up:
+                if not self.interface.thread._r.is_set():
+                    self.interface.d.pc.dec()
+                    self._updateScreen()
+                return True
+            elif key == QtCore.Qt.Key_Down:
+                if not self.interface.thread._r.is_set():
+                    self.interface.d.pc.inc()
+                    self._updateScreen()
+                return True
+
+        elif obj == self.ui.command and event.type() == QtCore.QEvent.KeyPress:
+            key = event.key()
+            if key == QtCore.Qt.Key_Up:
+                if self._cmdind < len(self._cmdhist):
+                    self._cmdind += 1
+                if self._cmdhist:
+                    self.ui.command.setText(self._cmdhist[-1 * self._cmdind])
+                return True
+            elif key == QtCore.Qt.Key_Down:
+                if self._cmdind > 0:
+                    self._cmdind -= 1
+                if self._cmdind == 0:
+                    self.ui.command.setText("")
+                elif self._cmdhist:
+                    self.ui.command.setText(self._cmdhist[-1 * self._cmdind])
+                return True
+                
+        return False
