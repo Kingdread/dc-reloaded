@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
 from dc.parts import Register, RAM
-from dc.errors import NoInputValue, ScriptError, AssembleError, Overflow
+from dc.errors import (NoInputValue, ScriptError, AssembleError, Overflow,
+                      InvalidAddress)
 from threading import RLock
 
 class DCConfig():
@@ -212,9 +213,12 @@ class DC():
                     raise ScriptError("Invalid instruction: {} (line {})".format(line[1], no))
                 cmd <<= self.conf.addrwidth
                 try:
-                    full = cmd | int(line[2])
+                    target = int(line[2])
+                    if target > self.maddr:
+                        raise InvalidAddress("The max value is {} (line {})".format(self.maddr, no))
+                    full = cmd | target
                 except ValueError:
-                    raise ScriptError("Not a valid address: {} (line {})".format(line[2], no))
+                    raise InvalidAddress("Not a valid address: {} (line {})".format(line[2], no))
             with self.lock:
                 self.ram[addr] = full
 
@@ -385,16 +389,22 @@ class DC():
         self.savemem()
 
     def LDAS(self):
+        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+            raise InvalidAddress
         self.ar.set(self.sp.value + (self.ir.value & self.maddr))
         self.getmem()
         self.dr.to(self.ac)
 
     def STAS(self):
+        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+            raise InvalidAddress
         self.ar.set(self.sp.value + (self.ir.value & self.maddr))
         self.ac.to(self.dr)
         self.savemem()
 
     def ADDS(self):
+        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+            raise InvalidAddress
         self.ar.set(self.sp.value + (self.ir.value & self.maddr))
         self.getmem()
         if self.ac.will_overflow(self.ac.signed_value + self.dr.signed_value):
@@ -402,6 +412,8 @@ class DC():
         self.ac += self.dr
 
     def SUBS(self):
+        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+            raise InvalidAddress
         self.ar.set(self.sp.value + (self.ir.value & self.maddr))
         self.getmem()
         if self.ac.will_overflow(self.ac.signed_value - self.dr.signed_value):
@@ -427,16 +439,22 @@ class DC():
         self.sp.dec()
 
     def LDAB(self):
+        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+            raise InvalidAddress
         self.ar.set(self.bp.value + (self.ir.value & self.maddr))
         self.getmem()
         self.dr.to(self.ac)
 
     def STAB(self):
+        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+            raise InvalidAddress
         self.ar.set(self.bp.value + (self.ir.value & self.maddr))
         self.ac.to(self.dr)
         self.savemem()
 
     def ADDB(self):
+        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+            raise InvalidAddress
         self.ar.set(self.bp.value + (self.ir.value & self.maddr))
         self.getmem()
         if self.ac.will_overflow(self.ac.signed_value + self.dr.signed_value):
@@ -444,6 +462,8 @@ class DC():
         self.ac += self.dr
 
     def SUBB(self):
+        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+            raise InvalidAddress
         self.ar.set(self.bp.value + (self.ir.value & self.maddr))
         self.getmem()
         if self.ac.will_overflow(self.ac.signed_value - self.dr.signed_value):
@@ -451,22 +471,30 @@ class DC():
         self.ac -= self.dr
 
     def OUTS(self):
+        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+            raise InvalidAddress
         self.ar.set(self.sp.value + (self.ir.value & self.maddr))
         self.getmem()
         self.interface.showOutput(self.dr.signed_value)
 
     def OUTB(self):
+        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+            raise InvalidAddress
         self.ar.set(self.bp.value + (self.ir.value & self.maddr))
         self.getmem()
         self.interface.showOutput(self.dr.signed_value)
 
     def INS(self):
+        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+            raise InvalidAddress
         self.ar.set(self.sp.value + (self.ir.value & self.maddr))
         value = self.interface.getInput()
         self.dr.set(value)
         self.savemem()
 
     def INB(self):
+        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+            raise InvalidAddress
         self.ar.set(self.sp.value + (self.ir.value & self.maddr))
         value = self.interface.getInput()
         self.dr.set(value)

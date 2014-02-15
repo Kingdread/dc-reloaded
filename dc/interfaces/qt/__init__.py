@@ -1,4 +1,4 @@
-from dc import NoInputValue
+from dc.errors import NoInputValue, DCError
 from dc.interfaces import Interface
 from dc.interfaces.qt.window import DCWindow
 from dc.interfaces.qt.background import DCThread
@@ -53,7 +53,10 @@ class QtInterface(Interface):
 
     def step(self):
         if not self.thread._r.is_set():
-            self.d.cycle()
+            try:
+                self.d.cycle()
+            except DCError as de:
+                self.report(de)
             self.window.updateScreen.emit()
 
     def getInput(self):
