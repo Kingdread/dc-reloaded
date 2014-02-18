@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main.ui'
 #
-# Created: Sat Feb 15 18:23:32 2014
+# Created: Tue Feb 18 18:26:46 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -150,11 +150,17 @@ class Ui_DCWindow(object):
         icon5.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/open.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionOpen.setIcon(icon5)
         self.actionOpen.setObjectName(_fromUtf8("actionOpen"))
+        self.actionClear = QtGui.QAction(DCWindow)
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/clear.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionClear.setIcon(icon6)
+        self.actionClear.setObjectName(_fromUtf8("actionClear"))
         self.toolBar.addAction(self.actionRun)
         self.toolBar.addAction(self.actionStep)
         self.toolBar.addAction(self.actionStop)
         self.toolBar.addAction(self.actionAssemble)
         self.toolBar.addAction(self.actionOpen)
+        self.toolBar.addAction(self.actionClear)
 
         self.retranslateUi(DCWindow)
         QtCore.QMetaObject.connectSlotsByName(DCWindow)
@@ -195,6 +201,10 @@ class Ui_DCWindow(object):
         self.actionAssemble.setShortcut(_translate("DCWindow", "Ctrl+A", None))
         self.actionOpen.setText(_translate("DCWindow", "Open", None))
         self.actionOpen.setToolTip(_translate("DCWindow", "Open a file", None))
+        self.actionOpen.setShortcut(_translate("DCWindow", "Ctrl+O", None))
+        self.actionClear.setText(_translate("DCWindow", "Clear", None))
+        self.actionClear.setToolTip(_translate("DCWindow", "Clear everything", None))
+        self.actionClear.setShortcut(_translate("DCWindow", "Ctrl+C", None))
 
 from dc.interfaces.qt.registerview import DCRegisterView
 from . import resources

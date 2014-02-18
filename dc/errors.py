@@ -21,4 +21,4 @@ class AssembleError(DCError): pass
 class Overflow(DCError): pass
 
 
-class InvalidAddress(DCError): pass
+class InvalidAddress(ScriptError): pass

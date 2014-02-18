@@ -231,6 +231,7 @@
    <addaction name="actionStop"/>
    <addaction name="actionAssemble"/>
    <addaction name="actionOpen"/>
+   <addaction name="actionClear"/>
   </widget>
   <action name="actionRun">
    <property name="icon">
@@ -302,6 +303,24 @@
    </property>
    <property name="toolTip">
     <string>Open a file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionClear">
+   <property name="icon">
+    <iconset resource="resource-files/resources.qrc">
+     <normaloff>:/icons/clear.png</normaloff>:/icons/clear.png</iconset>
+   </property>
+   <property name="text">
+    <string>Clear</string>
+   </property>
+   <property name="toolTip">
+    <string>Clear everything</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
    </property>
   </action>
  </widget>

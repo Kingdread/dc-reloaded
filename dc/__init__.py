@@ -2,7 +2,7 @@
 
 from dc.parts import Register, RAM
 from dc.errors import (NoInputValue, ScriptError, AssembleError, Overflow,
-                      InvalidAddress)
+                      InvalidAddress, DCError)
 from threading import RLock
 
 class DCConfig():
@@ -63,6 +63,8 @@ class DC():
         self.cellwidth = aw + cb
         self.maddr = 2 ** config.addrwidth - 1
         self.mcontr = 2 ** config.controlbits - 1
+        self.maxint = 2 ** (self.cellwidth - 1) - 1
+        self.minint = 2 ** (self.cellwidth - 1) * -1
         self.ram = RAM(2 ** config.addrwidth)
 
         self.ir = Register("IR", aw + cb)
@@ -100,24 +102,28 @@ class DC():
             line = line.split()
         except AttributeError:
             pass
+        if len(line) == 1:
+            line.append(0)
         cmd = line[0].upper()
         if cmd == "DEF":
             try:
                 full = int(line[1])
+                if full > self.maxint or full < self.minint:
+                    raise ScriptError("{} <= x <= {}".format(self.maxint, self.minint))
             except ValueError:
-                raise ScriptError("Not a valid integer: {} (line {})".format(line[2], no))
+                raise ScriptError("Not a valid integer: {}".format(line[1]))
         else:
             try:
                 cmd = self.opcodes[line[0].upper()]
             except KeyError:
-                raise ScriptError("Invalid instruction: {} (line {})".format(line[1], no))
+                raise ScriptError("Invalid instruction: {}".format(line[0]))
             cmd <<= self.conf.addrwidth
             try:
                 target = int(line[1])
                 if target > self.maddr:
-                    raise InvalidAddress("The max value is {} (line {})".format(self.maddr, no))
+                    raise InvalidAddress("The max value is {}".format(self.maddr))
             except ValueError:
-                raise InvalidAddress("Not a valid address: {} (line {})".format(line[2], no))
+                raise InvalidAddress("Not a valid address: {}".format(line[1]))
             else:
                 full = cmd | target
         
@@ -139,6 +145,7 @@ class DC():
         no = 0
         # Part one: get lines and local variables
         for lno, line in enumerate(cls.nocomment(l) for l in lines):
+            lno += 1
             line = line.strip()
             if not line:
                 continue
@@ -148,9 +155,13 @@ class DC():
                 token = line.pop(0)
                 if token.upper() in cls.opcodes or token.upper() == "DEF":
                     # command
-                    t.append([token] + line)
+                    if line:
+                        t.append([token, line.pop(0)])
+                    else:
+                        t.append([token])
                     no += 1
-                    break
+                    l = None
+                    continue
                 elif token.upper() == "EQUAL":
                     if l in v:
                         raise AssembleError("Variable {} already assigned (line {})".format(l, lno))
@@ -195,19 +206,25 @@ class DC():
             # compatibility bit, idk what this character is for:
             if line == "\x1a":
                 continue
+            no += 1
             line = line.strip()
             if not line:
                 continue
             line = line.split()
-            if len(line) == 2:
-                line.append(0)
-            elif len(line) < 2 or len(line) > 3:
+            if len(line) < 2 or len(line) > 3:
                 raise ScriptError("Invalid line {}: {}".format(no, " ".join(line)))
             try:
                 addr = int(line[0])
+                if addr > self.maddr:
+                    raise ScriptError("{} is outside of the available memory (line {})"
+                      .format(addr, no))
             except ValueError:
                 raise ScriptError("Not a valid address: {} (line {})".format(line[0], no))
-            full = self.parsecmd(line[1:])
+            try:
+                full = self.parsecmd(line[1:])
+            except DCError as de:
+                de.msg += " (line {})".format(no)
+                raise de
             with self.lock:
                 self.ram[addr] = full
 

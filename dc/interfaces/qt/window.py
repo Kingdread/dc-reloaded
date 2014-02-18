@@ -1,6 +1,6 @@
 from dc.interfaces.qt.ui_main import Ui_DCWindow
 from dc.interfaces.qt.rammodel import RAMModel
-from dc.errors import ScriptError, AssembleError
+from dc.errors import ScriptError, AssembleError, DCError
 from PyQt4 import QtGui, QtCore
 from queue import Empty
 import os
@@ -27,6 +27,7 @@ class DCWindow(QtGui.QMainWindow):
         self.ui.actionStop.triggered.connect(self.interface.pauseExecution)
         self.ui.actionOpen.triggered.connect(self.loadDialog)
         self.ui.actionAssemble.triggered.connect(self.assembleDialog)
+        self.ui.actionClear.triggered.connect(self.clear)
         self.ui.command.returnPressed.connect(self.execCmdline)
 
         self.ui.RAM.selectionModel().selectionChanged.connect(self._updatePC)
@@ -42,6 +43,7 @@ class DCWindow(QtGui.QMainWindow):
         self._cmdhist = []
         self.delaywarned = False
         self.gui_enabled = True
+        self.lastdir = ""
 
     def _updateSelection(self):
         self._selectionlock = True
@@ -67,7 +69,7 @@ class DCWindow(QtGui.QMainWindow):
 
     def _getInput(self):
         num = QtGui.QInputDialog.getInt(self, "Input", "Enter a value:",
-          min=-4096, max=4095) # TODO: fix those hardcoded values
+          min=self.interface.d.minint, max=self.interface.d.maxint)
         if num[1]:
             self.logLine("Input: {}".format(num[0]))
         self.interface.inputq.put(num)
@@ -109,11 +111,13 @@ class DCWindow(QtGui.QMainWindow):
         self.ui.history.appendPlainText(line)
 
     def loadDialog(self):
-        name = QtGui.QFileDialog.getOpenFileName()
+        name = QtGui.QFileDialog.getOpenFileName(directory=self.lastdir,
+          caption="Open file")
         if name:
             self.loadFile(name)
 
     def loadFile(self, name):
+        self.lastdir = os.path.dirname(name)
         try:
             with open(name, "r") as fo:
                 content = fo.readlines()
@@ -137,11 +141,13 @@ class DCWindow(QtGui.QMainWindow):
         return "{}.dc".format(name)
 
     def assembleDialog(self):
-        name = QtGui.QFileDialog.getOpenFileName()
+        name = QtGui.QFileDialog.getOpenFileName(directory=self.lastdir,
+          caption="Assemble file")
         if name:
             self.assembleFile(name)
 
     def assembleFile(self, name):
+        self.lastdir = os.path.dirname(name)
         try:
             with open(name, "r") as fo:
                 content = fo.readlines()
@@ -186,7 +192,10 @@ class DCWindow(QtGui.QMainWindow):
         except ValueError:
             self._dispatchCmd(cmd)
         else:
-            self.interface.d.load([" ".join(cmd)], False)
+            try:
+                self.interface.d.load([" ".join(cmd)], False)
+            except ScriptError as se:
+                QtGui.QMessageBox.critical(self, "Error", se.msg)
         self._updateScreen()
 
     def _dispatchCmd(self, cmd):
@@ -199,7 +208,7 @@ class DCWindow(QtGui.QMainWindow):
                 self.loadDialog()
             else:
                 self.loadFile(name)
-        elif c in {"a", "ass", "assemble"}:
+        elif c in {"a", "ass", "asm", "assemble"}:
             try:
                 name = cmd[1]
             except IndexError:
@@ -209,10 +218,7 @@ class DCWindow(QtGui.QMainWindow):
         elif c in {"r", "run"}:
             self.interface.startExecution()
         elif c in {"c", "clear"}:
-            self.interface.pauseExecution()
-            self.interface.d.reset()
-            self.ui.history.setPlainText("")
-            self.logLine("Cleared")
+            self.clear()
         elif c == "pc":
             try:
                 self.interface.d.pc.set(int(cmd[1]))
@@ -245,11 +251,24 @@ class DCWindow(QtGui.QMainWindow):
             self.logLine("GUI is now {}".format(
               "enabled" if self.gui_enabled else "disabled"))
         elif c == "update":
-            self._updateScreen()
+            # actually don't call _updateScreen() since it will be auto-
+            # matically called in execCmdline()
+            pass
         elif c == "hardcore":
             self.gui_enabled = False
             self.interface.delay = 0.00001
             self.logLine("Hardcore simulation is now on")
+        else:
+            QtGui.QMessageBox.warning(self, "Invalid", "Unknown command: {}"
+              .format(cmd[0]))
+
+    def clear(self):
+        self.interface.pauseExecution()
+        self.interface.d.reset()
+        self.gui_enabled = True
+        self.interface.delay = 0.1
+        self.ui.history.setPlainText("")
+        self._updateScreen()
 
     def eventFilter(self, obj, event):
         if obj == self.ui.RAM and event.type() == QtCore.QEvent.KeyPress:

@@ -19,6 +19,12 @@ class RAM(list):
     def __iadd__(self, other):
         raise NotImplementedError("You can't append to the RAM")
 
+    def remove(self, i):
+        raise NotImplementedError("You can't remove from the RAM")
+
+    def insert(self, index, item):
+        raise NotImplementedError("You can't insert into the RAM")
+
 class Register():
     def __init__(self, name, bits, value=0):
         self.name = name
