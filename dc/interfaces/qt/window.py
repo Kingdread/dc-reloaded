@@ -161,9 +161,10 @@ class DCWindow(QtGui.QMainWindow):
             return
         self.logLine("Assembled {}".format(name))
         self.interface.d.load(assembled)
+        self._updateScreen()
         name = self._mkname(name)
         if os.access(name, os.R_OK):
-            res = QtGui.QMessageBox.question(self, "Overwrite", "Filel {} already"
+            res = QtGui.QMessageBox.question(self, "Overwrite", "File {} already"
               " exists. Overwrite it?".format(name),
               QtGui.QMessageBox.Save | QtGui.QMessageBox.Cancel)
             if res == QtGui.QMessageBox.Cancel:
@@ -186,7 +187,7 @@ class DCWindow(QtGui.QMainWindow):
             self.interface.step()
             return
 
-        cmd = cmd.split()
+        cmd = cmd.split(None, 1)
         try:
             adr = int(cmd[0])
         except ValueError:
@@ -258,6 +259,9 @@ class DCWindow(QtGui.QMainWindow):
             self.gui_enabled = False
             self.interface.delay = 0.00001
             self.logLine("Hardcore simulation is now on")
+        elif c == "quit":
+            import sys
+            sys.exit()
         else:
             QtGui.QMessageBox.warning(self, "Invalid", "Unknown command: {}"
               .format(cmd[0]))

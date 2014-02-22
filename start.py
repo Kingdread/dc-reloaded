@@ -1,6 +1,5 @@
 #!/usr/bin/python
 from dc import DC, DCConfig
-from dc.interfaces.simple import Simple
 from dc.interfaces.qt import QtInterface
 
 c = DCConfig()
