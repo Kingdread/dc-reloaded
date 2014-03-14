@@ -229,7 +229,6 @@
    <addaction name="actionRun"/>
    <addaction name="actionStep"/>
    <addaction name="actionStop"/>
-   <addaction name="actionAssemble"/>
    <addaction name="actionOpen"/>
    <addaction name="actionClear"/>
   </widget>
@@ -276,21 +275,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Esc</string>
-   </property>
-  </action>
-  <action name="actionAssemble">
-   <property name="icon">
-    <iconset resource="resource-files/resources.qrc">
-     <normaloff>:/icons/assemble.png</normaloff>:/icons/assemble.png</iconset>
-   </property>
-   <property name="text">
-    <string>Assemble</string>
-   </property>
-   <property name="toolTip">
-    <string>Open the assembler</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+A</string>
    </property>
   </action>
   <action name="actionOpen">

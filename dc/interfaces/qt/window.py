@@ -28,7 +28,6 @@ class DCWindow(QtGui.QMainWindow):
         self.ui.actionStep.triggered.connect(self.interface.step)
         self.ui.actionStop.triggered.connect(self.interface.pauseExecution)
         self.ui.actionOpen.triggered.connect(self.loadDialog)
-        self.ui.actionAssemble.triggered.connect(self.assembleDialog)
         self.ui.actionClear.triggered.connect(self.clear)
         self.ui.command.returnPressed.connect(self.execCmdline)
 
@@ -115,8 +114,10 @@ class DCWindow(QtGui.QMainWindow):
     def loadDialog(self):
         name = QtGui.QFileDialog.getOpenFileName(directory=self.lastdir,
           caption="Open file")
-        if name:
+        if name.endswith(".dc"):
             self.loadFile(name)
+        elif name.endswith(".dcl"):
+            self.assembleFile(name)
 
     def loadFile(self, name):
         self.lastdir = os.path.dirname(name)
@@ -141,12 +142,6 @@ class DCWindow(QtGui.QMainWindow):
         if len(x) > 1:
             return ".".join(x[:-1] + ["dc"])
         return "{}.dc".format(name)
-
-    def assembleDialog(self):
-        name = QtGui.QFileDialog.getOpenFileName(directory=self.lastdir,
-          caption="Assemble file")
-        if name:
-            self.assembleFile(name)
 
     def assembleFile(self, name):
         self.lastdir = os.path.dirname(name)

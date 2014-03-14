@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main.ui'
 #
-# Created: Tue Feb 18 18:26:46 2014
+# Created: Fri Mar 14 18:10:43 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -140,25 +140,19 @@ class Ui_DCWindow(object):
         icon3.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/stop.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionStop.setIcon(icon3)
         self.actionStop.setObjectName(_fromUtf8("actionStop"))
-        self.actionAssemble = QtGui.QAction(DCWindow)
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/assemble.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionAssemble.setIcon(icon4)
-        self.actionAssemble.setObjectName(_fromUtf8("actionAssemble"))
         self.actionOpen = QtGui.QAction(DCWindow)
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/open.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionOpen.setIcon(icon5)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/open.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionOpen.setIcon(icon4)
         self.actionOpen.setObjectName(_fromUtf8("actionOpen"))
         self.actionClear = QtGui.QAction(DCWindow)
-        icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/clear.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionClear.setIcon(icon6)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap(_fromUtf8(":/icons/clear.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionClear.setIcon(icon5)
         self.actionClear.setObjectName(_fromUtf8("actionClear"))
         self.toolBar.addAction(self.actionRun)
         self.toolBar.addAction(self.actionStep)
         self.toolBar.addAction(self.actionStop)
-        self.toolBar.addAction(self.actionAssemble)
         self.toolBar.addAction(self.actionOpen)
         self.toolBar.addAction(self.actionClear)
 
@@ -196,9 +190,6 @@ class Ui_DCWindow(object):
         self.actionStop.setText(_translate("DCWindow", "Stop", None))
         self.actionStop.setToolTip(_translate("DCWindow", "Stops the execution", None))
         self.actionStop.setShortcut(_translate("DCWindow", "Ctrl+Esc", None))
-        self.actionAssemble.setText(_translate("DCWindow", "Assemble", None))
-        self.actionAssemble.setToolTip(_translate("DCWindow", "Open the assembler", None))
-        self.actionAssemble.setShortcut(_translate("DCWindow", "Ctrl+A", None))
         self.actionOpen.setText(_translate("DCWindow", "Open", None))
         self.actionOpen.setToolTip(_translate("DCWindow", "Open a file", None))
         self.actionOpen.setShortcut(_translate("DCWindow", "Ctrl+O", None))
