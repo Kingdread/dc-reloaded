@@ -113,10 +113,10 @@ class DCWindow(QtGui.QMainWindow):
 
     def loadDialog(self):
         name = QtGui.QFileDialog.getOpenFileName(directory=self.lastdir,
-          caption="Open file")
-        if name.endswith(".dc"):
+          caption="Open file", filter="DC files (*.dc *.dcl)")
+        if name.lower().endswith(".dc"):
             self.loadFile(name)
-        elif name.endswith(".dcl"):
+        elif name.lower().endswith(".dcl"):
             self.assembleFile(name)
 
     def loadFile(self, name):
