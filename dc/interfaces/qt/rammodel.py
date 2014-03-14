@@ -1,5 +1,5 @@
 from dc.errors import ScriptError
-from PyQt4 import QtCore
+from PyQt4 import QtCore, QtGui
 
 def signed_value(val, bits):
     leftmost = val >> (bits - 1)
@@ -7,6 +7,21 @@ def signed_value(val, bits):
         val = (~(val - 1)) & (2 ** bits - 1)
         val = -1 * val
     return val
+
+class RAMStyler(QtGui.QStyledItemDelegate):
+    def __init__(self, d):
+        super().__init__()
+        self.d = d
+        self.i = 0
+    
+    def initStyleOption(self, option, index):
+        super().initStyleOption(option, index)
+        if index.row() == self.d.sp.value:
+            option.palette.setColor(QtGui.QPalette.Text, QtCore.Qt.red)
+            option.font.setBold(True)
+        elif index.row() in self.d.retaddrs:
+            option.palette.setColor(QtGui.QPalette.Text, QtCore.Qt.blue)
+
 
 class RAMModel(QtCore.QAbstractItemModel):
     def __init__(self, d):

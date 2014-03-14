@@ -1,5 +1,5 @@
 from dc.interfaces.qt.ui_main import Ui_DCWindow
-from dc.interfaces.qt.rammodel import RAMModel
+from dc.interfaces.qt.rammodel import RAMModel, RAMStyler
 from dc.errors import ScriptError, AssembleError, DCError
 from PyQt4 import QtGui, QtCore
 from queue import Empty
@@ -18,7 +18,9 @@ class DCWindow(QtGui.QMainWindow):
         self.ui.setupUi(self)
 
         self.model = RAMModel(self.interface.d)
+        self.styler = RAMStyler(self.interface.d)
         self.ui.RAM.setModel(self.model)
+        self.ui.RAM.setItemDelegate(self.styler)
         self.ui.RAM.installEventFilter(self)
         self.ui.command.installEventFilter(self)
 

@@ -74,6 +74,8 @@ class DC():
         self.ar = Register("AR", aw)
         self.sp = Register("SP", aw, self.maddr)
         self.bp = Register("BP", aw, self.maddr)
+
+        self.retaddrs = set()
         
         self.running = False
 
@@ -328,6 +330,7 @@ class DC():
         self.pc.to(self.dr)
         self.sp.to(self.ar)
         self.savemem()
+        self.retaddrs.add(self.sp.value)
         self.sp.dec()
         self.pc.set(self.ir.value & self.maddr)
         return True
@@ -336,6 +339,13 @@ class DC():
         self.sp.inc()
         self.sp.to(self.ar)
         self.getmem()
+        try:
+            self.retaddrs.remove(self.sp.value)
+        except KeyError:
+            # Bad coded DC program, ignore it (RTN while SP was wrong)
+            # the user will have to worry about a non-working DC program
+            # anway, so don't cease to work now and just be nice :)
+            pass
         self.dr.to(self.pc)
         return True 
     
