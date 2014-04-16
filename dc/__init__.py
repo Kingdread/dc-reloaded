@@ -76,24 +76,20 @@ class DC():
         self.bp = Register("BP", aw, self.maddr)
 
         self.retaddrs = set()
-        
+        self.interface = None
         self.running = False
 
-        self.interface = None
-        self.lock = RLock()
-    
     def reset(self):
-        with self.lock:
-            self.ir.set(0)
-            self.dr.set(0)
-            self.pc.set(0)
-            self.ac.set(0)
-            self.ar.set(0)
-            self.sp.set(self.maddr)
-            self.bp.set(self.maddr)
-            self.running = False
-            self.ram.clear()
-    
+        self.ir.set(0)
+        self.dr.set(0)
+        self.pc.set(0)
+        self.ac.set(0)
+        self.ar.set(0)
+        self.sp.set(self.maddr)
+        self.bp.set(self.maddr)
+        self.running = False
+        self.ram.clear()
+
     def getcmd(self, cell):
         opc = cell >> self.conf.addrwidth
         mn = self.mnemo.get(opc, "DEF")
@@ -128,10 +124,10 @@ class DC():
                 raise InvalidAddress("Not a valid address: {}".format(line[1]))
             else:
                 full = cmd | target
-        
+
         return full & (2 ** self.cellwidth - 1)
-        
-        
+
+
     @staticmethod
     def nocomment(line):
         index = line.find(";")
@@ -182,7 +178,7 @@ class DC():
                         raise AssembleError("Label {} already defined (line {})".format(token, lno))
                     v[token] = no
                 l = token
-        
+
         # Part two: glue everything together, strip out labels, replace them
         # with the numbers from part one
         res = []
@@ -227,8 +223,7 @@ class DC():
             except DCError as de:
                 de.msg += " (line {})".format(no)
                 raise de
-            with self.lock:
-                self.ram[addr] = full
+            self.ram[addr] = full
 
     def getmem(self):
         data = self.ram[self.ar.value]
@@ -236,37 +231,35 @@ class DC():
 
     def savemem(self):
         self.ram[self.ar.value] = self.dr.value
-    
+
     def run(self):
         self.running = True
         while self.running:
             self.cycle()
 
     def cycle(self):
-        with self.lock:
-            self.pc.to(self.ar)
-            self.getmem()
-            self.dr.to(self.ir)
-            cmd = self.ir.value >> (self.conf.addrwidth)
-            adr = self.ir.value & self.maddr
-            self.ar.set(adr)
-            self.getmem()
-            try:
-                f = self.mnemo[cmd]
-            except KeyError:
-                # DEF
-                self.pc.inc()
-                return
+        self.pc.to(self.ar)
+        self.getmem()
+        self.dr.to(self.ir)
+        cmd = self.ir.value >> (self.conf.addrwidth)
+        adr = self.ir.value & self.maddr
+        self.ar.set(adr)
+        self.getmem()
+        try:
+            f = self.mnemo[cmd]
+        except KeyError:
+            # DEF
+            self.pc.inc()
+            return
 
-            try:
-                f = getattr(self, f)
-            except AttributeError:
-                jumped = False
-            else:
-                jumped = f()
-            if not jumped:
-                self.pc.inc()
-            self.interface.update()
+        try:
+            f = getattr(self, f)
+        except AttributeError:
+            jumped = False
+        else:
+            jumped = f()
+        if not jumped:
+            self.pc.inc()
 
     def LDA(self):
         self.dr.to(self.ac)
@@ -334,7 +327,7 @@ class DC():
         self.sp.dec()
         self.pc.set(self.ir.value & self.maddr)
         return True
-    
+
     def RTN(self):
         self.sp.inc()
         self.sp.to(self.ar)
@@ -347,8 +340,8 @@ class DC():
             # anway, so don't cease to work now and just be nice :)
             pass
         self.dr.to(self.pc)
-        return True 
-    
+        return True
+
     def PSH(self):
         self.sp.to(self.ar)
         self.sp.dec()
@@ -360,10 +353,10 @@ class DC():
         self.sp.to(self.ar)
         self.getmem()
         self.dr.to(self.ac)
-    
+
     def NOP(self):
         pass
-    
+
     def NEG(self):
         self.ac.neg()
 
@@ -384,10 +377,11 @@ class DC():
         try:
             value = self.interface.getInput()
         except NoInputValue:
+            self.running = False
             return
         self.dr.set(value)
         self.savemem()
-    
+
     def END(self):
         self.running = False
         return True
@@ -447,7 +441,7 @@ class DC():
         self.sp.to(self.ar)
         self.getmem()
         self.dr.to(self.bp)
-    
+
     def PSHB(self):
         self.bp.to(self.dr)
         self.sp.to(self.ar)

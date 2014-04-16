@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'main.ui'
+# Form implementation generated from reading ui file 'resource-files/main.ui'
 #
-# Created: Fri Mar 14 18:10:43 2014
-#      by: PyQt4 UI code generator 4.10.3
+# Created: Wed Apr 16 15:02:18 2014
+#      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -197,7 +197,7 @@ class Ui_DCWindow(object):
         self.actionClear.setToolTip(_translate("DCWindow", "Clear everything", None))
         self.actionClear.setShortcut(_translate("DCWindow", "Ctrl+C", None))
 
-from dc.interfaces.qt.registerview import DCRegisterView
+from dc.interface.registerview import DCRegisterView
 from . import resources
 
 if __name__ == "__main__":
