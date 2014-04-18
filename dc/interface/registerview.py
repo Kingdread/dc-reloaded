@@ -1,12 +1,22 @@
+#!/usr/bin/python3
+# -*- encoding: utf-8 -*-
+
 from PyQt4 import QtCore, QtGui
+
+"""
+This class contains the classes needed for the visualisation of the
+registers.
+"""
+
 class DCRegisterView(QtGui.QWidget):
+    """
+    A QWidget that draws the text for the registers onto the right
+    positions on the background.
+    """
     def __init__(self, *args):
         super().__init__(*args)
-        self.d = None
+        self.d = None  # will be set by the interface
         self.bg = QtGui.QImage(":/images/bg.png")
-
-    def setD(self, d):
-        self.d = d
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)

@@ -13,7 +13,9 @@ class Interface(QtGui.QMainWindow):
     Main Window for the Graphical Interface. You have to construct
     a QApplication before you can use objects of this class!
     """
+
     DEFAULT_DELAY = 0.5  # in seconds
+
     def __init__(self, d):
         """
         Initializes the Interface. You need to pass a DC object to the
@@ -41,7 +43,7 @@ class Interface(QtGui.QMainWindow):
         self.ui.RAM.setItemDelegate(self.styler)
         self.ui.RAM.installEventFilter(self)
         self.ui.command.installEventFilter(self)
-        self.ui.visual.setD(d)
+        self.ui.visual.d = d
 
         self.ui.actionClear.triggered.connect(self.clear)
         self.ui.actionOpen.triggered.connect(self.loadDialog)
@@ -61,7 +63,11 @@ class Interface(QtGui.QMainWindow):
 
     @property
     def delay(self):
-        return self.metronome.interval()
+        """
+        delay is the delay between to program steps in seconds, i.e.
+        the speed of execution.
+        """
+        return self.metronome.interval() / 1000.0
 
     @delay.setter
     def delay(self, d):
@@ -98,20 +104,22 @@ class Interface(QtGui.QMainWindow):
 
     def startExecution(self):
         """
-        Starts the metronome
+        Starts the execution of the program by starting the internal
+        timer.
         """
         self.d.running = True
         self.metronome.start()
 
     def pauseExecution(self):
         """
-        Stop the metronome
+        Stops the execution of the program.
         """
         self.metronome.stop()
 
     def step(self):
         """
-        Advances the DC by a single step but only if it's not running
+        Advances the DC by a single step but only if it's not running,
+        thus this method can be used for "step-buttons" in the GUI.
         """
         if not self.isRunning():
             try:
@@ -156,7 +164,8 @@ class Interface(QtGui.QMainWindow):
     def _updateSelection(self):
         """
         Updates the RAM view selection to match the current value of
-        the PC register.
+        the PC register. You normally only need to call .updateScreen()
+        and it will take care of everything.
         """
         # We need to lock here, otherwise the registered event for
         # selectionChanged will get triggered (._updatePC())
@@ -169,7 +178,9 @@ class Interface(QtGui.QMainWindow):
 
     def _updateRegisters(self):
         """
-        Sets the texts for the little register-value-view
+        Sets the texts for the little register-value-view. You normally
+        only need to call .updateScreen() and it will take care of
+        every-thing.
         """
         d = self.d
         self.ui.valueAC.setText("{:5}".format(d.ac.signed_value))
@@ -193,7 +204,8 @@ class Interface(QtGui.QMainWindow):
 
     def getInput(self):
         """
-        Used by DC to get an input value from the user
+        Used by DC to get an input value from the user. Raises
+        dc.errors.NoInputValue if no value is entered.
         """
         num = QtGui.QInputDialog.getInt(
             self, "Input", "Enter a value:", min=self.d.minint,
@@ -205,7 +217,9 @@ class Interface(QtGui.QMainWindow):
 
     def _updatePC(self, selected, deselected):
         """
-        Updates the PC register to the value clicked by the user.
+        Updates the PC register to the value clicked by the user. This
+        function is bound to the selectionChanged event and should not
+        be called manually by the user.
         """
         if not self._selectionlock:
             r = self.isRunning()
@@ -220,7 +234,7 @@ class Interface(QtGui.QMainWindow):
 
     def logLine(self, line):
         """
-        Logs a single line in the Log-View
+        Logs a single line in the Log-View.
         """
         self.ui.history.appendPlainText(line)
 
@@ -259,7 +273,6 @@ class Interface(QtGui.QMainWindow):
                 self, "Error",
                 ("Invalid script file (maybe you forgot to assemble it?):"
                  "<br><b> {}").format(se.msg))
-            return
 
     @staticmethod
     def _mkname(name):

@@ -1,19 +1,25 @@
-from dc.errors import ScriptError
+#!/usr/bin/python3
+# -*- encoding: utf-8 -*-
+from ..errors import ScriptError
+from ..util import signed_value
 from PyQt4 import QtCore, QtGui
 
-def signed_value(val, bits):
-    leftmost = val >> (bits - 1)
-    if leftmost:
-        val = (~(val - 1)) & (2 ** bits - 1)
-        val = -1 * val
-    return val
+"""
+This part contains QItemModels to feed the RAM-View with data from the
+DC RAM
+"""
+
 
 class RAMStyler(QtGui.QStyledItemDelegate):
+    """
+    This class is responsible for coloring different cells, e.g. the
+    current stack pointer.
+    """
     def __init__(self, d):
         super().__init__()
         self.d = d
         self.i = 0
-    
+
     def initStyleOption(self, option, index):
         super().initStyleOption(option, index)
         if index.row() == self.d.sp.value:
@@ -24,6 +30,9 @@ class RAMStyler(QtGui.QStyledItemDelegate):
 
 
 class RAMModel(QtCore.QAbstractItemModel):
+    """
+    This model provides access to the DC RAM via a QItemModel
+    """
     def __init__(self, d):
         super().__init__()
         self.d = d
@@ -61,16 +70,20 @@ class RAMModel(QtCore.QAbstractItemModel):
             cell = index.row()
             try:
                 self.d.ram[cell] = self.d.parsecmd(value)
-            except ScriptError as se:
+            except ScriptError:
                 return False
             self.dataChanged.emit(index, index)
             return True
-    
+
     def flags(self, index):
         return (QtCore.Qt.ItemIsEnabled |
                 QtCore.Qt.ItemIsSelectable |
                 QtCore.Qt.ItemIsEditable)
 
     def update(self):
-        self.dataChanged.emit(self.index(0, 0, None), self.index(len(self.d.ram)-1, 0, None))
-
+        """
+        Shortcut to emit the dataChanged signal and trigger an update
+        of the view.
+        """
+        self.dataChanged.emit(self.index(0, 0, None),
+                              self.index(len(self.d.ram)-1, 0, None))
