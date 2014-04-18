@@ -1,7 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+# -*- encoding: utf-8 -*-
 from dc import DC, DCConfig
-from dc.interface import Interface
-from dc.interface import resources
+from dc.interface import Interface, resources
 resources  # Surpress unused variable name
 import sys
 from PyQt4 import QtGui
