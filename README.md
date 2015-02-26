@@ -1,5 +1,5 @@
 *If you are reading this in plain text, head over to
-https://github.com/Kingdread/DC
+https://github.com/Kingdread/dc-reloaded
 for a rendered version*
 
 DC
@@ -10,9 +10,9 @@ DC
 Quoi?
 -----
 
-DC is a rewrite of the [microprocessor simulation][original] (german site) by
-[Horst Gierhardt][gierhardt], written in Python and open source. It (should)
-support everything the original DC.EXE supports.
+dc-reloaded is a rewrite of the [microprocessor simulation][original] (german
+site) by [Horst Gierhardt][gierhardt], written in Python and open source. It
+(should) support everything the original DC.EXE supports.
 
 DC is a little processor simulation with a small assembler instruction set,
 designed as a teaching/learning tool to show the internal processes of a CPU.
