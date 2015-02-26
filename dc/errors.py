@@ -1,4 +1,14 @@
+#!/usr/bin/python3
+# -*- encoding: utf-8 -*-
+"""
+A collection of various exceptions for the DC
+"""
+
+
 class DCError(Exception):
+    """
+    Base class for all DC related errors
+    """
     def __init__(self,  msg=""):
         self.msg = msg
 
@@ -9,16 +19,35 @@ class DCError(Exception):
             return self.__class__.__name__
 
 
-class NoInputValue(DCError): pass
+class NoInputValue(DCError):
+    """
+    Used by the interface to signal that not input value could be
+    retrieved.
+    """
 
 
-class ScriptError(DCError): pass
+class ScriptError(DCError):
+    """
+    A general exception for errors in a program, either during the
+    loading of a program or during its execution (runtime errors)
+    """
 
 
-class AssembleError(DCError): pass
+class AssembleError(DCError):
+    """
+    An exception when something went wrong during the assemblation,
+    like an unresolved variable name
+    """
 
 
-class Overflow(DCError): pass
+class Overflow(DCError):
+    """
+    An exception raised when an overflow would happen
+    """
 
 
-class InvalidAddress(ScriptError): pass
+class InvalidAddress(ScriptError):
+    """
+    A more specific ScriptError when a parameter to a jump is an
+    invalid address.
+    """
