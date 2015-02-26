@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 from ..errors import ScriptError
 from ..util import signed_value
-from PyQt4 import QtCore, QtGui
+from PyQt5 import Qt, QtCore, QtGui
 
 """
 This part contains QItemModels to feed the RAM-View with data from the
@@ -10,7 +10,7 @@ DC RAM
 """
 
 
-class RAMStyler(QtGui.QStyledItemDelegate):
+class RAMStyler(Qt.QStyledItemDelegate):
     """
     This class is responsible for coloring different cells, e.g. the
     current stack pointer.

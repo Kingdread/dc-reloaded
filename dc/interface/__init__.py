@@ -4,11 +4,11 @@
 from ..errors import ScriptError, AssembleError, DCError, NoInputValue
 from .rammodel import RAMModel, RAMStyler
 from .ui_main import Ui_DCWindow
-from PyQt4 import QtGui, QtCore
+from PyQt5 import Qt, QtGui, QtCore
 import os
 
 
-class Interface(QtGui.QMainWindow):
+class Interface(Qt.QMainWindow):
     """
     Main Window for the Graphical Interface. You have to construct
     a QApplication before you can use objects of this class!
@@ -100,7 +100,7 @@ class Interface(QtGui.QMainWindow):
         -box
         """
         self.logLine("Error: {}".format(error))
-        QtGui.QMessageBox.critical(self, "Error", str(error))
+        Qt.QMessageBox.critical(self, "Error", str(error))
 
     def startExecution(self):
         """
@@ -153,7 +153,7 @@ class Interface(QtGui.QMainWindow):
         # Those messages can get quite disturbing if your program procudes
         # many of those. Maybe let this commented out until there's a
         # better solution
-        # QtGui.QMessageBox.information(self, "Output", str(item))
+        # Qt.QMessageBox.information(self, "Output", str(item))
 
     def isRunning(self):
         """
@@ -173,7 +173,7 @@ class Interface(QtGui.QMainWindow):
         s = self.ui.RAM.selectionModel()
         s.clear()
         s.select(self.model.index(self.d.pc.value, 0, None),
-                 QtGui.QItemSelectionModel.Select)
+                 Qt.QItemSelectionModel.Select)
         self._selectionlock = False
 
     def _updateRegisters(self):
@@ -207,7 +207,7 @@ class Interface(QtGui.QMainWindow):
         Used by DC to get an input value from the user. Raises
         dc.errors.NoInputValue if no value is entered.
         """
-        num = QtGui.QInputDialog.getInt(
+        num = Qt.QInputDialog.getInt(
             self, "Input", "Enter a value:", min=self.d.minint,
             max=self.d.maxint)
         if num[1]:
@@ -244,7 +244,9 @@ class Interface(QtGui.QMainWindow):
         A .dc file will get loaded, a .dcl file will get assembled
         first.
         """
-        name = QtGui.QFileDialog.getOpenFileName(
+        # Returns (name, filter) as stated by the docs of PyQt5 at
+        # http://pyqt.sourceforge.net/Docs/PyQt5/pyqt4_differences.html#qfiledialog
+        name, _ = Qt.QFileDialog.getOpenFileName(
             directory=self.lastdir, caption="Open file",
             filter="DC files (*.dc *.dcl)")
         if name.lower().endswith(".dc"):
@@ -261,7 +263,7 @@ class Interface(QtGui.QMainWindow):
             with open(name, "r") as fo:
                 content = fo.readlines()
         except IOError:
-            QtGui.QMessageBox.critical(self, "Error",
+            Qt.QMessageBox.critical(self, "Error",
                                        "Can't access {}".format(name))
             return
         try:
@@ -269,7 +271,7 @@ class Interface(QtGui.QMainWindow):
             self.logLine("Loaded {}".format(name))
             self.updateScreen()
         except ScriptError as se:
-            QtGui.QMessageBox.critical(
+            Qt.QMessageBox.critical(
                 self, "Error",
                 ("Invalid script file (maybe you forgot to assemble it?):"
                  "<br><b> {}").format(se.msg))
@@ -293,31 +295,31 @@ class Interface(QtGui.QMainWindow):
             with open(name, "r") as fo:
                 content = fo.readlines()
         except IOError:
-            QtGui.QMessageBox.critical(self, "Error",
+            Qt.QMessageBox.critical(self, "Error",
                                        "Can't access {}".format(name))
             return
         try:
             assembled = self.d.assemble(content)
         except AssembleError as ae:
-            QtGui.QMessageBox.critical(self, "Error", ae.msg)
+            Qt.QMessageBox.critical(self, "Error", ae.msg)
             return
         self.logLine("Assembled {}".format(name))
         self.d.load(assembled)
         self.updateScreen()
         name = self._mkname(name)
         if os.access(name, os.R_OK):
-            res = QtGui.QMessageBox.question(
+            res = Qt.QMessageBox.question(
                 self, "Overwrite", ("File {} already"
                                     " exists. Overwrite it?").format(name),
-                QtGui.QMessageBox.Save | QtGui.QMessageBox.Cancel)
-            if res == QtGui.QMessageBox.Cancel:
+                Qt.QMessageBox.Save | Qt.QMessageBox.Cancel)
+            if res == Qt.QMessageBox.Cancel:
                 return
         try:
             with open(name, "w") as fo:
                 fo.write("\r\n".join(assembled))
             self.logLine("Saved file to {}".format(name))
         except IOError:
-            QtGui.QMessageBox.warning(
+            Qt.QMessageBox.warning(
                 self, "Oops",
                 "Can't write the assembled"
                 " file to {}. It still got loaded, but you need to assemble it"
@@ -344,7 +346,7 @@ class Interface(QtGui.QMainWindow):
             try:
                 self.d.load([" ".join(cmd)], False)
             except ScriptError as se:
-                QtGui.QMessageBox.critical(self, "Error", se.msg)
+                Qt.QMessageBox.critical(self, "Error", se.msg)
         self.updateScreen()
 
     def _dispatchCmd(self, cmd):
@@ -374,7 +376,7 @@ class Interface(QtGui.QMainWindow):
             try:
                 self.d.pc.set(int(cmd[1]))
             except (ValueError, IndexError):
-                QtGui.QMessageBox.warning(self, "Invalid",
+                Qt.QMessageBox.warning(self, "Invalid",
                                           "pc expects an int"
                                           "eger as parameter")
         elif c in {"g", "goto"}:
@@ -382,7 +384,7 @@ class Interface(QtGui.QMainWindow):
                 self.d.pc.set(int(cmd[1]))
                 self.startExecution()
             except (ValueError, IndexError):
-                QtGui.QMessageBox.warning(self, "Invalid",
+                Qt.QMessageBox.warning(self, "Invalid",
                                           "goto expects an "
                                           "integer as parameter")
         elif c in {"d", "delay"}:
@@ -391,7 +393,7 @@ class Interface(QtGui.QMainWindow):
                 if delay <= 0:
                     raise ValueError
             except (ValueError, IndexError):
-                QtGui.QMessageBox.warning(self, "Invalid", "delay must be > 0")
+                Qt.QMessageBox.warning(self, "Invalid", "delay must be > 0")
             else:
                 self.delay = float(cmd[1])
                 self.logLine("Delay set to {}".format(self.delay))
@@ -416,7 +418,7 @@ class Interface(QtGui.QMainWindow):
             import sys
             sys.exit()
         else:
-            QtGui.QMessageBox.warning(self, "Invalid",
+            Qt.QMessageBox.warning(self, "Invalid",
                                       "Unknown command: {}".format(cmd[0]))
 
     def clear(self):

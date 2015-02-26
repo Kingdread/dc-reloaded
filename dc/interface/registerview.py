@@ -1,14 +1,14 @@
 #!/usr/bin/python3
 # -*- encoding: utf-8 -*-
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import Qt, QtCore, QtGui
 
 """
 This class contains the classes needed for the visualisation of the
 registers.
 """
 
-class DCRegisterView(QtGui.QWidget):
+class DCRegisterView(Qt.QWidget):
     """
     A QWidget that draws the text for the registers onto the right
     positions on the background.
