@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 # -*- encoding: utf-8 -*-
+# pylint: disable=too-few-public-methods
+"""
+Main module of the DC
+"""
 from .parts import Register, RAM
 from .errors import (NoInputValue, ScriptError, AssembleError, Overflow,
                      InvalidAddress, DCError)
@@ -17,6 +21,11 @@ class DCConfig():
 
 
 class DC():
+    # The following are probably okay to disable here, since every assembly
+    # command is a (public) function without docstring. (maybe make those
+    # "private" instead?)
+    # pylint: disable=too-many-instance-attributes,too-many-public-methods
+    # pylint: disable=invalid-name,missing-docstring
     """
     Main class for the DC. This class provides all operations that are
     independent from the interface. It can be used to simulate a DC
@@ -91,9 +100,10 @@ class DC():
         self.sp = Register("SP", aw, self.maddr)
         self.bp = Register("BP", aw, self.maddr)
 
-        self.retaddrs = set()  # A collection of addresses pushed onto
-                               # the stack by JSR so we can color them
-                               # differently.
+        # A collection of addresses pushed onto the stack by JSR so we
+        # can color them differently.
+        self.retaddrs = set()
+
         self.interface = None
         self.running = False
 
@@ -175,6 +185,7 @@ class DC():
 
     @classmethod
     def assemble(cls, lines):
+        # pylint: disable=too-many-branches
         """
         Assemble a DCL file to a DC file so that it can be loaded.
         The file is given as a list of its lines and the DC file is

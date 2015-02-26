@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- encoding: utf-8 -*-
-
+# pylint: disable=too-few-public-methods
 """
 Various utility functions and classes for DC
 """

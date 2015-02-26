@@ -1,14 +1,15 @@
 #!/usr/bin/python3
 # -*- encoding: utf-8 -*-
-
-from PyQt5 import Qt, QtCore, QtGui
-
 """
 This class contains the classes needed for the visualisation of the
 registers.
 """
 
+from PyQt5 import Qt, QtCore, QtGui
+
+
 class DCRegisterView(Qt.QWidget):
+    # pylint: disable=too-few-public-methods
     """
     A QWidget that draws the text for the registers onto the right
     positions on the background.
@@ -16,11 +17,14 @@ class DCRegisterView(Qt.QWidget):
     def __init__(self, *args):
         super().__init__(*args)
         self.d = None  # will be set by the interface
-        self.bg = QtGui.QImage(":/images/bg.png")
+        self.background = QtGui.QImage(":/images/bg.png")
 
-    def paintEvent(self, event):
+    def paintEvent(self, event_):
+        """
+        Overwritten paintEvent of Qt.QWidget
+        """
         painter = QtGui.QPainter(self)
-        painter.drawImage(0, 0, self.bg)
+        painter.drawImage(0, 0, self.background)
         if self.d is None:
             return
         painter.setPen(QtCore.Qt.white)

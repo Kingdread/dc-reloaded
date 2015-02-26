@@ -9,7 +9,8 @@ class DCError(Exception):
     """
     Base class for all DC related errors
     """
-    def __init__(self,  msg=""):
+    def __init__(self, msg=""):
+        super().__init__()
         self.msg = msg
 
     def __str__(self):

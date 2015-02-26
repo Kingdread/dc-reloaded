@@ -1,10 +1,17 @@
 #!/usr/bin/python3
 # -*- encoding: utf-8 -*-
+"""
+Definitions of the various "building parts"/hardware of the DC, such as
+RAM and Register
+"""
 
 from . import util
 
 
+# The "NotImplementedErrors" raised in append/... will make pylint
+# complain, that's why we disable abstract-class-not-used
 class RAM(list):
+    # pylint: disable=abstract-class-not-used
     """
     Class to represent the RAM. It is a sublcass of list and can be
     used in the same way, except that it cannot be extended and has
@@ -93,6 +100,7 @@ class Register():
             self.value = ~self.value
         self.value &= self.maxvalue
 
+    # pylint: disable=invalid-name
     def to(self, register):
         """
         Set the other register's value to the own value:

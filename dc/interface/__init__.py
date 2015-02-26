@@ -1,14 +1,17 @@
 #!/usr/bin/python3
 # -*- encoding: utf-8 -*-
-
+"""
+Module contains the main Qt interface class
+"""
 from ..errors import ScriptError, AssembleError, DCError, NoInputValue
 from .rammodel import RAMModel, RAMStyler
 from .ui_main import Ui_DCWindow
-from PyQt5 import Qt, QtGui, QtCore
+from PyQt5 import Qt, QtCore
 import os
 
 
 class Interface(Qt.QMainWindow):
+    # pylint: disable=too-many-instance-attributes,abstract-class-not-used
     """
     Main Window for the Graphical Interface. You have to construct
     a QApplication before you can use objects of this class!
@@ -70,11 +73,14 @@ class Interface(Qt.QMainWindow):
         return self.metronome.interval() / 1000.0
 
     @delay.setter
-    def delay(self, d):
-        if d <= 0:
+    def delay(self, new_delay):
+        """
+        Sets the delay
+        """
+        if new_delay <= 0:
             raise ValueError("Delay must be greater than zero")
-        self.metronome.setInterval(d * 1000)
-        self.maxdblock = 0.1 / d
+        self.metronome.setInterval(new_delay * 1000)
+        self.maxdblock = 0.1 / new_delay
         self.dblock = 0
 
     def update(self):
@@ -124,8 +130,8 @@ class Interface(Qt.QMainWindow):
         if not self.isRunning():
             try:
                 self.d.cycle()
-            except DCError as de:
-                self.report(de)
+            except DCError as error:
+                self.report(error)
             self.updateScreen()
 
     def _runningStep(self):
@@ -137,8 +143,8 @@ class Interface(Qt.QMainWindow):
         """
         try:
             self.d.cycle()
-        except DCError as de:
-            self.report(de)
+        except DCError as error:
+            self.report(error)
         self.update()
         # Reached the end of the program:
         if not self.d.running:
@@ -170,10 +176,10 @@ class Interface(Qt.QMainWindow):
         # We need to lock here, otherwise the registered event for
         # selectionChanged will get triggered (._updatePC())
         self._selectionlock = True
-        s = self.ui.RAM.selectionModel()
-        s.clear()
-        s.select(self.model.index(self.d.pc.value, 0, None),
-                 Qt.QItemSelectionModel.Select)
+        model = self.ui.RAM.selectionModel()
+        model.clear()
+        model.select(self.model.index(self.d.pc.value, 0, None),
+                     Qt.QItemSelectionModel.Select)
         self._selectionlock = False
 
     def _updateRegisters(self):
@@ -222,14 +228,14 @@ class Interface(Qt.QMainWindow):
         be called manually by the user.
         """
         if not self._selectionlock:
-            r = self.isRunning()
+            was_running = self.isRunning()
             self.pauseExecution()
             ind = selected.indexes()
             if ind:
                 ind = ind[0]
                 self.d.pc.set(ind.row())
                 self.updateScreen()
-            if r:
+            if was_running:
                 self.startExecution()
 
     def logLine(self, line):
@@ -260,30 +266,30 @@ class Interface(Qt.QMainWindow):
         """
         self.lastdir = os.path.dirname(name)
         try:
-            with open(name, "r") as fo:
-                content = fo.readlines()
+            with open(name, "r") as input_file:
+                content = input_file.readlines()
         except IOError:
             Qt.QMessageBox.critical(self, "Error",
-                                       "Can't access {}".format(name))
+                                    "Can't access {}".format(name))
             return
         try:
             self.d.load(content)
             self.logLine("Loaded {}".format(name))
             self.updateScreen()
-        except ScriptError as se:
+        except ScriptError as error:
             Qt.QMessageBox.critical(
                 self, "Error",
                 ("Invalid script file (maybe you forgot to assemble it?):"
-                 "<br><b> {}").format(se.msg))
+                 "<br><b> {}").format(error.msg))
 
     @staticmethod
     def _mkname(name):
         """
         Split off the filename extension and append a .dc
         """
-        x = name.split(".")
-        if len(x) > 1:
-            return ".".join(x[:-1] + ["dc"])
+        splitname = name.split(".")
+        if len(splitname) > 1:
+            return ".".join(splitname[:-1] + ["dc"])
         return "{}.dc".format(name)
 
     def assembleFile(self, name):
@@ -292,16 +298,16 @@ class Interface(Qt.QMainWindow):
         """
         self.lastdir = os.path.dirname(name)
         try:
-            with open(name, "r") as fo:
-                content = fo.readlines()
+            with open(name, "r") as input_file:
+                content = input_file.readlines()
         except IOError:
             Qt.QMessageBox.critical(self, "Error",
-                                       "Can't access {}".format(name))
+                                    "Can't access {}".format(name))
             return
         try:
             assembled = self.d.assemble(content)
-        except AssembleError as ae:
-            Qt.QMessageBox.critical(self, "Error", ae.msg)
+        except AssembleError as error:
+            Qt.QMessageBox.critical(self, "Error", error.msg)
             return
         self.logLine("Assembled {}".format(name))
         self.d.load(assembled)
@@ -315,8 +321,8 @@ class Interface(Qt.QMainWindow):
             if res == Qt.QMessageBox.Cancel:
                 return
         try:
-            with open(name, "w") as fo:
-                fo.write("\r\n".join(assembled))
+            with open(name, "w") as output_file:
+                output_file.write("\r\n".join(assembled))
             self.logLine("Saved file to {}".format(name))
         except IOError:
             Qt.QMessageBox.warning(
@@ -345,49 +351,48 @@ class Interface(Qt.QMainWindow):
         else:
             try:
                 self.d.load([" ".join(cmd)], False)
-            except ScriptError as se:
-                Qt.QMessageBox.critical(self, "Error", se.msg)
+            except ScriptError as error:
+                Qt.QMessageBox.critical(self, "Error", error.msg)
         self.updateScreen()
 
     def _dispatchCmd(self, cmd):
+        # pylint: disable=too-many-branches,too-many-statements
         """
         Decide what to do with the cmd given on the cmdline
         """
-        c = cmd[0].lower()
-        if c in {"l", "load"}:
+        order = cmd[0].lower()
+        if order in {"l", "load"}:
             try:
                 name = cmd[1]
             except IndexError:
                 self.loadDialog()
             else:
                 self.loadFile(name)
-        elif c in {"a", "ass", "asm", "assemble"}:
+        elif order in {"a", "ass", "asm", "assemble"}:
             try:
                 name = cmd[1]
             except IndexError:
                 self.assembleDialog()
             else:
                 self.assembleFile(name)
-        elif c in {"r", "run"}:
+        elif order in {"r", "run"}:
             self.startExecution()
-        elif c in {"c", "clear"}:
+        elif order in {"c", "clear"}:
             self.clear()
-        elif c == "pc":
+        elif order == "pc":
             try:
                 self.d.pc.set(int(cmd[1]))
             except (ValueError, IndexError):
                 Qt.QMessageBox.warning(self, "Invalid",
-                                          "pc expects an int"
-                                          "eger as parameter")
-        elif c in {"g", "goto"}:
+                                       "pc expects an integer as parameter")
+        elif order in {"g", "goto"}:
             try:
                 self.d.pc.set(int(cmd[1]))
                 self.startExecution()
             except (ValueError, IndexError):
                 Qt.QMessageBox.warning(self, "Invalid",
-                                          "goto expects an "
-                                          "integer as parameter")
-        elif c in {"d", "delay"}:
+                                       "goto expects an integer as parameter")
+        elif order in {"d", "delay"}:
             try:
                 delay = float(cmd[1])
                 if delay <= 0:
@@ -402,24 +407,24 @@ class Interface(Qt.QMainWindow):
                                  " complete unresponsiveness of the user inter"
                                  "face!")
                     self.delaywarned = True
-        elif c == "togglegui":
+        elif order == "togglegui":
             self.gui_enabled = not self.gui_enabled
             self.logLine("GUI is now {}".format(
-                         "enabled" if self.gui_enabled else "disabled"))
-        elif c == "update":
+                "enabled" if self.gui_enabled else "disabled"))
+        elif order == "update":
             # actually don't call updateScreen() since it will be auto-
             # matically called in execCmdline()
             pass
-        elif c == "hardcore":
+        elif order == "hardcore":
             self.gui_enabled = False
             self.delay = 0.00001
             self.logLine("Hardcore simulation is now on")
-        elif c == "quit":
+        elif order == "quit":
             import sys
             sys.exit()
         else:
             Qt.QMessageBox.warning(self, "Invalid",
-                                      "Unknown command: {}".format(cmd[0]))
+                                   "Unknown command: {}".format(cmd[0]))
 
     def clear(self):
         """
@@ -433,6 +438,7 @@ class Interface(Qt.QMainWindow):
         self.updateScreen()
 
     def eventFilter(self, obj, event):
+        # pylint: disable=too-many-branches
         """
         Event filter for some objects.
         1) RAM view, to respond to Arrow-Up/Arrow-Down key presses
