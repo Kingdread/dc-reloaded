@@ -14,6 +14,7 @@ Contents:
    installation
    usage
    hardware
+   fileformat
 
 Indices and tables
 ==================
