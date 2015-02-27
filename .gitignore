@@ -5,3 +5,6 @@
 *.dcl
 *.swp
 DC.EXE
+dist/
+build/
+*.egg-info

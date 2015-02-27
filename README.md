@@ -44,8 +44,25 @@ Dependencies
 Installation
 ------------
 
-No `setup.py` yet, until then just run `python3 start.py` in the git
-repository.
+Refer to the documentation for detailed installation instructions.
+
+tl;dr:
+
+    sudo python3 setup.py install
+
+**This will install dc-reloaded system-wide**. The documentation contains a
+tutorial to install it in a python virtual environment. If the command
+finishes, you can run
+
+    dc-reloaded
+
+to start DC reloaded. If you get an error à la
+
+    Traceback (most recent call last):
+    ...
+    ImportError: No module named 'PyQt5'
+
+then you need to install [PyQt5][pyqt].
 
 License
 -------
@@ -91,3 +108,4 @@ Have fun!
 [gierhardt]: http://www.gierhardt.de/
 [deja-license]: http://dejavu-fonts.org/wiki/License
 [pep8]: https://www.python.org/dev/peps/pep-0008/
+[pyqt]: http://www.riverbankcomputing.co.uk/software/pyqt/intro
