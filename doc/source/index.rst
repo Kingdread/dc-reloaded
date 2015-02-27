@@ -13,6 +13,7 @@ Contents:
    
    installation
    usage
+   hardware
 
 Indices and tables
 ==================
