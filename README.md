@@ -25,15 +25,15 @@ Puorquoi?
 
 *Why not?*
 
-Usage
------
+Documentation
+-------------
 
-The documentation is not yet finished, you can find a german reference manual
-on the [original program's website][original]. You can also find some example
-programs on the site.
+You can find the documentation [here][documentation]. Alternatively you can
+build your local copy using sphinx. Just cd into `doc/` and run
 
-In the future I will write/translate a manual tailored to this DC
-implementation.
+    make html
+
+to generate the html documentation in `doc/build/html/`.
 
 Dependencies
 ------------
@@ -63,6 +63,12 @@ to start DC reloaded. If you get an error à la
     ImportError: No module named 'PyQt5'
 
 then you need to install [PyQt5][pyqt].
+
+Examples
+--------
+
+Examples can be found in `doc/source/examples/` or in the
+[documentation][documentation].
 
 License
 -------
@@ -109,3 +115,4 @@ Have fun!
 [deja-license]: http://dejavu-fonts.org/wiki/License
 [pep8]: https://www.python.org/dev/peps/pep-0008/
 [pyqt]: http://www.riverbankcomputing.co.uk/software/pyqt/intro
+[documentation]: http://kingdread.de/dc-reloaded
