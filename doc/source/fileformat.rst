@@ -32,7 +32,7 @@ for DC. The assembler has the following advantages over .dc files:
 
 * No need to manually enumerate each cell
 * Support for labels with the NAME: syntax
-* Constant definition with EQUALS (note that this is like a C macro that gets
+* Constant definition with EQUAL (note that this is like a C macro that gets
   expanded at compile time, not a run time constant because run time constants
   have to be defined in a memory cell somewhere)
 
