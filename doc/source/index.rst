@@ -15,6 +15,7 @@ Contents:
    usage
    hardware
    fileformat
+   examples
 
 Indices and tables
 ==================
