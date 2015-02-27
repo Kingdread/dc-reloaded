@@ -1,10 +1,8 @@
 *.pyc
 **/__pycache__/
-*.dc
-*.DC
-*.dcl
 *.swp
-DC.EXE
 dist/
 build/
 *.egg-info
+
+doc/build/
