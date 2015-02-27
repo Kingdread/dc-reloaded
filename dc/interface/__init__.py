@@ -372,7 +372,7 @@ class Interface(Qt.QMainWindow):
             try:
                 name = cmd[1]
             except IndexError:
-                self.assembleDialog()
+                self.loadDialog()
             else:
                 self.assembleFile(name)
         elif order in {"r", "run"}:
