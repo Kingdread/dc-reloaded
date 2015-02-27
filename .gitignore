@@ -8,3 +8,5 @@ DC.EXE
 dist/
 build/
 *.egg-info
+
+doc/build/
