@@ -30,7 +30,7 @@ class DC():
     Main class for the DC. This class provides all operations that are
     independent from the interface. It can be used to simulate a DC
     even without the GUI as long as you provide a mock interface with
-    getInput and showOutput functions.
+    get_input and show_output functions.
     """
     # Mapping NAME - CODE
     # DEF is ------
@@ -449,11 +449,11 @@ class DC():
         self.ac.dec()
 
     def OUT(self):
-        self.interface.showOutput(self.dr.signed_value)
+        self.interface.show_output(self.dr.signed_value)
 
     def INM(self):
         try:
-            value = self.interface.getInput()
+            value = self.interface.get_input()
         except NoInputValue:
             self.is_running = False
             return
@@ -571,7 +571,7 @@ class DC():
             raise InvalidAddress
         self.ar.set(address)
         self.get_memory()
-        self.interface.showOutput(self.dr.signed_value)
+        self.interface.show_output(self.dr.signed_value)
 
     def OUTB(self):
         address = self.bp.value + (self.ir.value & self.max_address)
@@ -579,14 +579,14 @@ class DC():
             raise InvalidAddress
         self.ar.set(address)
         self.get_memory()
-        self.interface.showOutput(self.dr.signed_value)
+        self.interface.show_output(self.dr.signed_value)
 
     def INS(self):
         address = self.sp.value + (self.ir.value & self.max_address)
         if address > self.max_address:
             raise InvalidAddress
         self.ar.set(address)
-        value = self.interface.getInput()
+        value = self.interface.get_input()
         self.dr.set(value)
         self.save_memory()
 
@@ -595,6 +595,6 @@ class DC():
         if address > self.max_address:
             raise InvalidAddress
         self.ar.set(address)
-        value = self.interface.getInput()
+        value = self.interface.get_input()
         self.dr.set(value)
         self.save_memory()
