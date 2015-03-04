@@ -16,8 +16,8 @@ class DCConfig():
     the addresswidth. Maybe this will be expanded later
     """
     def __init__(self):
-        self.addrwidth = 7
-        self.controlbits = 6
+        self.address_width = 7
+        self.control_bits = 6
 
 
 class DC():
@@ -30,7 +30,7 @@ class DC():
     Main class for the DC. This class provides all operations that are
     independent from the interface. It can be used to simulate a DC
     even without the GUI as long as you provide a mock interface with
-    getInput and showOutput functions.
+    get_input and show_output functions.
     """
     # Mapping NAME - CODE
     # DEF is ------
@@ -84,28 +84,26 @@ class DC():
         Set up a DC with the given config
         """
         self.conf = config
-        aw, cb = config.addrwidth, config.controlbits
-        self.cellwidth = aw + cb
-        self.maddr = 2 ** config.addrwidth - 1
-        self.mcontr = 2 ** config.controlbits - 1
-        self.maxint = 2 ** (self.cellwidth - 1) - 1
-        self.minint = 2 ** (self.cellwidth - 1) * -1
-        self.ram = RAM(2 ** config.addrwidth)
+        self.cellwidth = config.address_width + config.control_bits
+        self.max_address = 2 ** config.address_width - 1
+        self.max_int = 2 ** (self.cellwidth - 1) - 1
+        self.min_int = 2 ** (self.cellwidth - 1) * -1
+        self.ram = RAM(2 ** config.address_width)
 
-        self.ir = Register("IR", aw + cb)
-        self.dr = Register("DR", aw + cb)
-        self.pc = Register("PC", aw)
-        self.ac = Register("AC", aw + cb)
-        self.ar = Register("AR", aw)
-        self.sp = Register("SP", aw, self.maddr)
-        self.bp = Register("BP", aw, self.maddr)
+        self.ir = Register("IR", config.address_width + config.control_bits)
+        self.dr = Register("DR", config.address_width + config.control_bits)
+        self.pc = Register("PC", config.address_width)
+        self.ac = Register("AC", config.address_width + config.control_bits)
+        self.ar = Register("AR", config.address_width)
+        self.sp = Register("SP", config.address_width, self.max_address)
+        self.bp = Register("BP", config.address_width, self.max_address)
 
         # A collection of addresses pushed onto the stack by JSR so we
         # can color them differently.
-        self.retaddrs = set()
+        self.return_addresses = set()
 
         self.interface = None
-        self.running = False
+        self.is_running = False
 
     def reset(self):
         """
@@ -116,27 +114,27 @@ class DC():
         self.pc.set(0)
         self.ac.set(0)
         self.ar.set(0)
-        self.sp.set(self.maddr)
-        self.bp.set(self.maddr)
-        self.retaddrs = set()
-        self.running = False
+        self.sp.set(self.max_address)
+        self.bp.set(self.max_address)
+        self.return_addresses = set()
+        self.is_running = False
         self.ram.clear()
 
-    def getcmd(self, value):
+    def command_name(self, value):
         """
         Return the name of the command for the given cell value
         """
-        opc = value >> self.conf.addrwidth
+        opc = value >> self.conf.address_width
         mn = self.mnemo.get(opc, "DEF")
         return mn
 
-    def parsecmd(self, line):
+    def parse_command(self, line):
         """
         Parse a string representation of a command ("CMD ARG") into an
         integer value. Instead of giving the string representation, you
         can provide an already splitted list too.
 
-        >>> parsecmd("JMP 127") == 0b0001001111111
+        >>> parse_command("JMP 127") == 0b0001001111111
         True
         """
         try:
@@ -149,9 +147,9 @@ class DC():
         if cmd == "DEF":
             try:
                 full = int(line[1])
-                if full > self.maxint or full < self.minint:
-                    raise ScriptError("{} <= x <= {}".format(self.maxint,
-                                                             self.minint))
+                if full > self.max_int or full < self.min_int:
+                    raise ScriptError("{} <= x <= {}".format(self.max_int,
+                                                             self.min_int))
             except ValueError:
                 raise ScriptError("Not a valid integer: {}".format(line[1]))
         else:
@@ -159,12 +157,12 @@ class DC():
                 cmd = self.opcodes[line[0].upper()]
             except KeyError:
                 raise ScriptError("Invalid instruction: {}".format(line[0]))
-            cmd <<= self.conf.addrwidth
+            cmd <<= self.conf.address_width
             try:
                 target = int(line[1])
-                if target > self.maddr:
+                if target > self.max_address:
                     raise InvalidAddress(
-                        "The max value is {}".format(self.maddr))
+                        "The max value is {}".format(self.max_address))
             except ValueError:
                 raise InvalidAddress("Not a valid address: {}".format(line[1]))
             else:
@@ -173,11 +171,11 @@ class DC():
         return full & (2 ** self.cellwidth - 1)
 
     @staticmethod
-    def nocomment(line, cchar=";"):
+    def strip_comment(line, comment_delim=";"):
         """
-        Strip of a comment when the comment char is cchar
+        Strip of a comment with the given comment delimiter
         """
-        index = line.find(cchar)
+        index = line.find(comment_delim)
         if index == -1:
             return line
         else:
@@ -198,7 +196,7 @@ class DC():
         t = []
         no = 0
         # Part one: get lines and local variables
-        for lno, line in enumerate(cls.nocomment(l) for l in lines):
+        for lno, line in enumerate(cls.strip_comment(l) for l in lines):
             # Switch from zero based index to one based index (human
             # index):
             lno += 1
@@ -272,7 +270,7 @@ class DC():
         """
         if clear:
             self.reset()
-        for no, line in enumerate(self.nocomment(l) for l in lines):
+        for no, line in enumerate(self.strip_comment(l) for l in lines):
             # compatibility bit, I don't know what this character is
             # for. It's there for files produced by the original
             # version of DC:
@@ -291,7 +289,7 @@ class DC():
                     .format(no, " ".join(line)))
             try:
                 addr = int(line[0])
-                if addr > self.maddr or addr < 0:
+                if addr > self.max_address or addr < 0:
                     raise ScriptError(
                         "{} is outside of the available memory (line {})"
                         .format(addr, no))
@@ -300,13 +298,13 @@ class DC():
                     "Not a valid address: {} (line {})"
                     .format(line[0], no))
             try:
-                full = self.parsecmd(line[1:])
-            except DCError as de:
-                de.msg += " (line {})".format(no)
-                raise de
+                full = self.parse_command(line[1:])
+            except DCError as error:
+                error.msg += " (line {})".format(no)
+                raise error
             self.ram[addr] = full
 
-    def getmem(self):
+    def get_memory(self):
         """
         Copy the data from the memory cell currently pointed at by the
         address register (AR) into the data register (DR)
@@ -314,7 +312,7 @@ class DC():
         data = self.ram[self.ar.value]
         self.dr.set(data)
 
-    def savemem(self):
+    def save_memory(self):
         """
         Copy the data from the data register (DR) to the memory cell
         currently pointed at by the address register (AR)
@@ -326,8 +324,8 @@ class DC():
         Execute the whole program until an END is reached or an error
         occurs
         """
-        self.running = True
-        while self.running:
+        self.is_running = True
+        while self.is_running:
             self.cycle()
 
     def cycle(self):
@@ -337,15 +335,15 @@ class DC():
         """
         # Step 1: Fetch
         self.pc.to(self.ar)
-        self.getmem()
+        self.get_memory()
         self.dr.to(self.ir)
         # Step 2: Decode
         self.pc.inc()
-        cmd = self.ir.value >> (self.conf.addrwidth)
-        adr = self.ir.value & self.maddr
+        cmd = self.ir.value >> (self.conf.address_width)
+        adr = self.ir.value & self.max_address
         # Step 3: Fetch operands
         self.ar.set(adr)
-        self.getmem()
+        self.get_memory()
         try:
             f = self.mnemo[cmd]
         except KeyError:
@@ -361,7 +359,7 @@ class DC():
 
     def STA(self):
         self.ac.to(self.dr)
-        self.savemem()
+        self.save_memory()
 
     def ADD(self):
         if self.ac.will_overflow(self.ac.signed_value + self.dr.signed_value):
@@ -403,17 +401,17 @@ class DC():
     def JSR(self):
         self.pc.to(self.dr)
         self.sp.to(self.ar)
-        self.savemem()
-        self.retaddrs.add(self.sp.value)
+        self.save_memory()
+        self.return_addresses.add(self.sp.value)
         self.sp.dec()
-        self.pc.set(self.ir.value & self.maddr)
+        self.pc.set(self.ir.value & self.max_address)
 
     def RTN(self):
         self.sp.inc()
         self.sp.to(self.ar)
-        self.getmem()
+        self.get_memory()
         try:
-            self.retaddrs.remove(self.sp.value)
+            self.return_addresses.remove(self.sp.value)
         except KeyError:
             # Bad coded DC program, ignore it (RTN while SP was wrong)
             # the user will probably have to worry about a non-working
@@ -426,12 +424,12 @@ class DC():
         self.sp.to(self.ar)
         self.sp.dec()
         self.ac.to(self.dr)
-        self.savemem()
+        self.save_memory()
 
     def POP(self):
         self.sp.inc()
         self.sp.to(self.ar)
-        self.getmem()
+        self.get_memory()
         self.dr.to(self.ac)
 
     def NOP(self):
@@ -451,60 +449,64 @@ class DC():
         self.ac.dec()
 
     def OUT(self):
-        self.interface.showOutput(self.dr.signed_value)
+        self.interface.show_output(self.dr.signed_value)
 
     def INM(self):
         try:
-            value = self.interface.getInput()
+            value = self.interface.get_input()
         except NoInputValue:
-            self.running = False
+            self.is_running = False
             return
         self.dr.set(value)
-        self.savemem()
+        self.save_memory()
 
     def END(self):
-        self.running = False
+        self.is_running = False
 
     def PSHM(self):
         self.sp.to(self.ar)
-        self.savemem()
+        self.save_memory()
         self.sp.dec()
 
     def POPM(self):
         self.sp.inc()
         self.sp.to(self.ar)
-        self.getmem()
+        self.get_memory()
         self.ir.to(self.ar)
-        self.savemem()
+        self.save_memory()
 
     def LDAS(self):
-        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.sp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.sp.value + (self.ir.value & self.maddr))
-        self.getmem()
+        self.ar.set(address)
+        self.get_memory()
         self.dr.to(self.ac)
 
     def STAS(self):
-        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.sp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.sp.value + (self.ir.value & self.maddr))
+        self.ar.set(address)
         self.ac.to(self.dr)
-        self.savemem()
+        self.save_memory()
 
     def ADDS(self):
-        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.sp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.sp.value + (self.ir.value & self.maddr))
-        self.getmem()
+        self.ar.set(address)
+        self.get_memory()
         if self.ac.will_overflow(self.ac.signed_value + self.dr.signed_value):
             raise Overflow
         self.ac += self.dr
 
     def SUBS(self):
-        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.sp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.sp.value + (self.ir.value & self.maddr))
-        self.getmem()
+        self.ar.set(address)
+        self.get_memory()
         if self.ac.will_overflow(self.ac.signed_value - self.dr.signed_value):
             raise Overflow
         self.ac -= self.dr
@@ -518,73 +520,81 @@ class DC():
     def POPB(self):
         self.sp.inc()
         self.sp.to(self.ar)
-        self.getmem()
+        self.get_memory()
         self.dr.to(self.bp)
 
     def PSHB(self):
         self.bp.to(self.dr)
         self.sp.to(self.ar)
-        self.savemem()
+        self.save_memory()
         self.sp.dec()
 
     def LDAB(self):
-        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.bp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.bp.value + (self.ir.value & self.maddr))
-        self.getmem()
+        self.ar.set(address)
+        self.get_memory()
         self.dr.to(self.ac)
 
     def STAB(self):
-        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.bp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.bp.value + (self.ir.value & self.maddr))
+        self.ar.set(address)
         self.ac.to(self.dr)
-        self.savemem()
+        self.save_memory()
 
     def ADDB(self):
-        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.bp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.bp.value + (self.ir.value & self.maddr))
-        self.getmem()
+        self.ar.set(address)
+        self.get_memory()
         if self.ac.will_overflow(self.ac.signed_value + self.dr.signed_value):
             raise Overflow
         self.ac += self.dr
 
     def SUBB(self):
-        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.bp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.bp.value + (self.ir.value & self.maddr))
-        self.getmem()
+        self.ar.set(address)
+        self.get_memory()
         if self.ac.will_overflow(self.ac.signed_value - self.dr.signed_value):
             raise Overflow
         self.ac -= self.dr
 
     def OUTS(self):
-        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.sp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.sp.value + (self.ir.value & self.maddr))
-        self.getmem()
-        self.interface.showOutput(self.dr.signed_value)
+        self.ar.set(address)
+        self.get_memory()
+        self.interface.show_output(self.dr.signed_value)
 
     def OUTB(self):
-        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.bp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.bp.value + (self.ir.value & self.maddr))
-        self.getmem()
-        self.interface.showOutput(self.dr.signed_value)
+        self.ar.set(address)
+        self.get_memory()
+        self.interface.show_output(self.dr.signed_value)
 
     def INS(self):
-        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.sp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.sp.value + (self.ir.value & self.maddr))
-        value = self.interface.getInput()
+        self.ar.set(address)
+        value = self.interface.get_input()
         self.dr.set(value)
-        self.savemem()
+        self.save_memory()
 
     def INB(self):
-        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.bp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.sp.value + (self.ir.value & self.maddr))
-        value = self.interface.getInput()
+        self.ar.set(address)
+        value = self.interface.get_input()
         self.dr.set(value)
-        self.savemem()
+        self.save_memory()

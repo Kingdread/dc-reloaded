@@ -32,14 +32,15 @@ class Interface(Qt.QMainWindow):
         # Counter for the GUI updates. If delay is small, the GUI would
         # update way too often so we only update it every nth cycle
         # (see delay.setter)
-        self.dblock = 0
-        self.maxdblock = 0
+        self._gui_block_counter = 0
+        self._gui_block_maximum = 0
+
         self.ui = Ui_DCWindow()
         self.ui.setupUi(self)
 
         self.metronome = QtCore.QTimer()
         self.metronome.setInterval(self.DEFAULT_DELAY * 1000)
-        self.metronome.timeout.connect(self._runningStep)
+        self.metronome.timeout.connect(self._metronome_step)
         self.model = RAMModel(self.d)
         self.styler = RAMStyler(self.d)
         self.ui.RAM.setModel(self.model)
@@ -49,18 +50,23 @@ class Interface(Qt.QMainWindow):
         self.ui.visual.d = d
 
         self.ui.actionClear.triggered.connect(self.clear)
-        self.ui.actionOpen.triggered.connect(self.loadDialog)
-        self.ui.actionRun.triggered.connect(self.startExecution)
+        self.ui.actionOpen.triggered.connect(self.show_load_dialog)
+        self.ui.actionRun.triggered.connect(self.start_execution)
         self.ui.actionStep.triggered.connect(self.step)
-        self.ui.actionStop.triggered.connect(self.pauseExecution)
-        self.ui.command.returnPressed.connect(self.execCmdline)
+        self.ui.actionStop.triggered.connect(self.pause_execution)
+        self.ui.command.returnPressed.connect(self.exec_command_line)
 
-        self.ui.RAM.selectionModel().selectionChanged.connect(self._updatePC)
-        self._selectionlock = False
+        self.ui.RAM.selectionModel().selectionChanged.connect(self._update_PC)
+        # The selection is locked when the execution is running because
+        # selecting something in the RAM will change the program counter and
+        # that is not what we want.
+        self._selection_locked = False
+        
+        # Command history
+        self._history = []
+        self._history_index= 0
 
-        self._cmdind = 0
-        self._cmdhist = []
-        self.delaywarned = False
+        self._delay_warning_shown = False
         self.gui_enabled = True
         self.lastdir = ""
 
@@ -80,43 +86,44 @@ class Interface(Qt.QMainWindow):
         if new_delay <= 0:
             raise ValueError("Delay must be greater than zero")
         self.metronome.setInterval(new_delay * 1000)
-        self.maxdblock = 0.1 / new_delay
-        self.dblock = 0
+        self._gui_block_maximum = 0.1 / new_delay
+        self._gui_block_counter = 0
 
     def update(self):
         """
         Called after each cycle. This method checks if the screen
-        should be updated, and if so, calls .updateScreen(). If you
-        want to ensure an update, call .updateScreen() directly.
+        should be updated, and if so, calls .update_screen(). If you
+        want to ensure an update, call .update_screen() directly.
         """
         if self.gui_enabled:
             # This is important, as otherwise we'd experience great lag
-            # if the delay is too small and updateScreen gets called
+            # if the delay is too small and update_screen gets called
             # too often. Feel free to adjust the "formula" in
             # delay.setter
-            if self.delay >= 0.1 or self.dblock == self.maxdblock:
-                self.updateScreen()
-                self.dblock = 0
+            if (self.delay >= 0.1 or
+                    self._gui_block_counter == self._gui_block_maximum):
+                self.update_screen()
+                self._gui_block_counter = 0
             else:
-                self.dblock += 1
+                self._gui_block_counter += 1
 
     def report(self, error):
         """
         Logs an error on the command line and displays an error-message
         -box
         """
-        self.logLine("Error: {}".format(error))
+        self.log_line("Error: {}".format(error))
         Qt.QMessageBox.critical(self, "Error", str(error))
 
-    def startExecution(self):
+    def start_execution(self):
         """
         Starts the execution of the program by starting the internal
         timer.
         """
-        self.d.running = True
+        self.d.is_running = True
         self.metronome.start()
 
-    def pauseExecution(self):
+    def pause_execution(self):
         """
         Stops the execution of the program.
         """
@@ -127,14 +134,14 @@ class Interface(Qt.QMainWindow):
         Advances the DC by a single step but only if it's not running,
         thus this method can be used for "step-buttons" in the GUI.
         """
-        if not self.isRunning():
+        if not self.is_running():
             try:
                 self.d.cycle()
             except DCError as error:
                 self.report(error)
-            self.updateScreen()
+            self.update_screen()
 
-    def _runningStep(self):
+    def _metronome_step(self):
         """
         This is the function that gets executed with every metronome
         tick. It advances the DC just like .step(), but bypasses the
@@ -147,45 +154,45 @@ class Interface(Qt.QMainWindow):
             self.report(error)
         self.update()
         # Reached the end of the program:
-        if not self.d.running:
+        if not self.d.is_running:
             self.metronome.stop()
-            self.updateScreen()
+            self.update_screen()
 
-    def showOutput(self, item):
+    def show_output(self, item):
         """
         Show some output on the Log (called by the DC object)
         """
-        self.logLine("Output: {}".format(item))
+        self.log_line("Output: {}".format(item))
         # Those messages can get quite disturbing if your program procudes
         # many of those. Maybe let this commented out until there's a
         # better solution
         # Qt.QMessageBox.information(self, "Output", str(item))
 
-    def isRunning(self):
+    def is_running(self):
         """
         Returns if the program is running or not
         """
         return self.metronome.isActive()
 
-    def _updateSelection(self):
+    def _update_selection(self):
         """
         Updates the RAM view selection to match the current value of
-        the PC register. You normally only need to call .updateScreen()
+        the PC register. You normally only need to call .update_screen()
         and it will take care of everything.
         """
         # We need to lock here, otherwise the registered event for
-        # selectionChanged will get triggered (._updatePC())
-        self._selectionlock = True
+        # selectionChanged will get triggered (._update_PC())
+        self._selection_locked = True
         model = self.ui.RAM.selectionModel()
         model.clear()
         model.select(self.model.index(self.d.pc.value, 0, None),
                      Qt.QItemSelectionModel.Select)
-        self._selectionlock = False
+        self._selection_locked = False
 
-    def _updateRegisters(self):
+    def _update_registers(self):
         """
         Sets the texts for the little register-value-view. You normally
-        only need to call .updateScreen() and it will take care of
+        only need to call .update_screen() and it will take care of
         every-thing.
         """
         d = self.d
@@ -196,7 +203,7 @@ class Interface(Qt.QMainWindow):
         self.ui.valueSP.setText("{:5}".format(d.sp.value))
         self.ui.valueBP.setText("{:5}".format(d.bp.value))
 
-    def updateScreen(self):
+    def update_screen(self):
         """
         Update the Visualisation, Register-Value-View, the RAM-View and
         the currently selected item in the RAM-View
@@ -204,47 +211,47 @@ class Interface(Qt.QMainWindow):
         tl;dr: Updates the screen.
         """
         self.ui.visual.repaint()
-        self._updateRegisters()
+        self._update_registers()
         self.model.update()
-        self._updateSelection()
+        self._update_selection()
 
-    def getInput(self):
+    def get_input(self):
         """
         Used by DC to get an input value from the user. Raises
         dc.errors.NoInputValue if no value is entered.
         """
         num = Qt.QInputDialog.getInt(
-            self, "Input", "Enter a value:", min=self.d.minint,
-            max=self.d.maxint)
+            self, "Input", "Enter a value:", min=self.d.min_int,
+            max=self.d.max_int)
         if num[1]:
-            self.logLine("Input: {}".format(num[0]))
+            self.log_line("Input: {}".format(num[0]))
             return num[0]
         raise NoInputValue
 
-    def _updatePC(self, selected, deselected):
+    def _update_PC(self, selected, deselected):
         """
         Updates the PC register to the value clicked by the user. This
         function is bound to the selectionChanged event and should not
         be called manually by the user.
         """
-        if not self._selectionlock:
-            was_running = self.isRunning()
-            self.pauseExecution()
+        if not self._selection_locked:
+            was_running = self.is_running()
+            self.pause_execution()
             ind = selected.indexes()
             if ind:
                 ind = ind[0]
                 self.d.pc.set(ind.row())
-                self.updateScreen()
+                self.update_screen()
             if was_running:
-                self.startExecution()
+                self.start_execution()
 
-    def logLine(self, line):
+    def log_line(self, line):
         """
         Logs a single line in the Log-View.
         """
         self.ui.history.appendPlainText(line)
 
-    def loadDialog(self):
+    def show_load_dialog(self):
         """
         Shows the dialog to load or assemble a file.
         A .dc file will get loaded, a .dcl file will get assembled
@@ -256,11 +263,11 @@ class Interface(Qt.QMainWindow):
             directory=self.lastdir, caption="Open file",
             filter="DC files (*.dc *.dcl)")
         if name.lower().endswith(".dc"):
-            self.loadFile(name)
+            self.load_file(name)
         elif name.lower().endswith(".dcl"):
-            self.assembleFile(name)
+            self.assemble_file(name)
 
-    def loadFile(self, name):
+    def load_file(self, name):
         """
         Loads the file given by name
         """
@@ -274,8 +281,8 @@ class Interface(Qt.QMainWindow):
             return
         try:
             self.d.load(content)
-            self.logLine("Loaded {}".format(name))
-            self.updateScreen()
+            self.log_line("Loaded {}".format(name))
+            self.update_screen()
         except ScriptError as error:
             Qt.QMessageBox.critical(
                 self, "Error",
@@ -283,7 +290,7 @@ class Interface(Qt.QMainWindow):
                  "<br><b> {}").format(error.msg))
 
     @staticmethod
-    def _mkname(name):
+    def _assembled_name(name):
         """
         Split off the filename extension and append a .dc
         """
@@ -292,7 +299,7 @@ class Interface(Qt.QMainWindow):
             return ".".join(splitname[:-1] + ["dc"])
         return "{}.dc".format(name)
 
-    def assembleFile(self, name):
+    def assemble_file(self, name):
         """
         Assemble and load the file given by name
         """
@@ -309,10 +316,10 @@ class Interface(Qt.QMainWindow):
         except AssembleError as error:
             Qt.QMessageBox.critical(self, "Error", error.msg)
             return
-        self.logLine("Assembled {}".format(name))
+        self.log_line("Assembled {}".format(name))
         self.d.load(assembled)
-        self.updateScreen()
-        name = self._mkname(name)
+        self.update_screen()
+        name = self._assembled_name(name)
         if os.access(name, os.R_OK):
             res = Qt.QMessageBox.question(
                 self, "Overwrite", ("File {} already"
@@ -323,7 +330,7 @@ class Interface(Qt.QMainWindow):
         try:
             with open(name, "w") as output_file:
                 output_file.write("\r\n".join(assembled))
-            self.logLine("Saved file to {}".format(name))
+            self.log_line("Saved file to {}".format(name))
         except IOError:
             Qt.QMessageBox.warning(
                 self, "Oops",
@@ -331,13 +338,13 @@ class Interface(Qt.QMainWindow):
                 " file to {}. It still got loaded, but you need to assemble it"
                 " again next time.".format(name))
 
-    def execCmdline(self):
+    def exec_command_line(self):
         """
         Hook executed when the user presses enter in the cmdline.
         """
         cmd = self.ui.command.text()
-        self._cmdhist.append(cmd)
-        self._cmdind = 0
+        self._history.append(cmd)
+        self._history_index = 0
         self.ui.command.setText("")
         if not cmd:
             self.step()
@@ -353,7 +360,7 @@ class Interface(Qt.QMainWindow):
                 self.d.load([" ".join(cmd)], False)
             except ScriptError as error:
                 Qt.QMessageBox.critical(self, "Error", error.msg)
-        self.updateScreen()
+        self.update_screen()
 
     def _dispatchCmd(self, cmd):
         # pylint: disable=too-many-branches,too-many-statements
@@ -365,18 +372,18 @@ class Interface(Qt.QMainWindow):
             try:
                 name = cmd[1]
             except IndexError:
-                self.loadDialog()
+                self.show_load_dialog()
             else:
-                self.loadFile(name)
+                self.load_file(name)
         elif order in {"a", "ass", "asm", "assemble"}:
             try:
                 name = cmd[1]
             except IndexError:
-                self.loadDialog()
+                self.show_load_dialog()
             else:
-                self.assembleFile(name)
+                self.assemble_file(name)
         elif order in {"r", "run"}:
-            self.startExecution()
+            self.start_execution()
         elif order in {"c", "clear"}:
             self.clear()
         elif order == "pc":
@@ -388,7 +395,7 @@ class Interface(Qt.QMainWindow):
         elif order in {"g", "goto"}:
             try:
                 self.d.pc.set(int(cmd[1]))
-                self.startExecution()
+                self.start_execution()
             except (ValueError, IndexError):
                 Qt.QMessageBox.warning(self, "Invalid",
                                        "goto expects an integer as parameter")
@@ -401,24 +408,24 @@ class Interface(Qt.QMainWindow):
                 Qt.QMessageBox.warning(self, "Invalid", "delay must be > 0")
             else:
                 self.delay = float(cmd[1])
-                self.logLine("Delay set to {}".format(self.delay))
-                if delay < 0.1 and not self.delaywarned:
-                    self.logLine("Warning: A small delay might cause lags or a"
+                self.log_line("Delay set to {}".format(self.delay))
+                if delay < 0.1 and not self._delay_warning_shown:
+                    self.log_line("Warning: A small delay might cause lags or a"
                                  " complete unresponsiveness of the user inter"
                                  "face!")
-                    self.delaywarned = True
+                    self._delay_warning_shown = True
         elif order == "togglegui":
             self.gui_enabled = not self.gui_enabled
-            self.logLine("GUI is now {}".format(
+            self.log_line("GUI is now {}".format(
                 "enabled" if self.gui_enabled else "disabled"))
         elif order == "update":
-            # actually don't call updateScreen() since it will be auto-
-            # matically called in execCmdline()
+            # actually don't call update_screen() since it will be auto-
+            # matically called in exec_command_line()
             pass
         elif order == "hardcore":
             self.gui_enabled = False
             self.delay = 0.00001
-            self.logLine("Hardcore simulation is now on")
+            self.log_line("Hardcore simulation is now on")
         elif order == "quit":
             import sys
             sys.exit()
@@ -430,16 +437,18 @@ class Interface(Qt.QMainWindow):
         """
         Reset everything.
         """
-        self.pauseExecution()
+        self.pause_execution()
         self.d.reset()
         self.gui_enabled = True
         self.delay = self.DEFAULT_DELAY
         self.ui.history.setPlainText("")
-        self.updateScreen()
+        self.update_screen()
 
     def eventFilter(self, obj, event):
         # pylint: disable=too-many-branches
         """
+        Overwrites QObject.eventFilter
+
         Event filter for some objects.
         1) RAM view, to respond to Arrow-Up/Arrow-Down key presses
         2) cmdline, to respond to Arrow-Up/Arrow-Down key presses
@@ -447,31 +456,33 @@ class Interface(Qt.QMainWindow):
         if obj == self.ui.RAM and event.type() == QtCore.QEvent.KeyPress:
             key = event.key()
             if key == QtCore.Qt.Key_Up:
-                if not self.isRunning():
+                if not self.is_running():
                     self.d.pc.dec()
-                    self.updateScreen()
+                    self.update_screen()
                 return True
             elif key == QtCore.Qt.Key_Down:
-                if not self.isRunning():
+                if not self.is_running():
                     self.d.pc.inc()
-                    self.updateScreen()
+                    self.update_screen()
                 return True
 
         elif obj == self.ui.command and event.type() == QtCore.QEvent.KeyPress:
             key = event.key()
             if key == QtCore.Qt.Key_Up:
-                if self._cmdind < len(self._cmdhist):
-                    self._cmdind += 1
-                if self._cmdhist:
-                    self.ui.command.setText(self._cmdhist[-1 * self._cmdind])
+                if self._history_index < len(self._history):
+                    self._history_index += 1
+                if self._history:
+                    index = -1 * self._history_index
+                    self.ui.command.setText(self._history[index])
                 return True
             elif key == QtCore.Qt.Key_Down:
-                if self._cmdind > 0:
-                    self._cmdind -= 1
-                if self._cmdind == 0:
+                if self._history_index > 0:
+                    self._history_index -= 1
+                if self._history_index == 0:
                     self.ui.command.setText("")
-                elif self._cmdhist:
-                    self.ui.command.setText(self._cmdhist[-1 * self._cmdind])
+                elif self._history:
+                    index = -1 * self._history_index
+                    self.ui.command.setText(self._history[index])
                 return True
 
         return False
