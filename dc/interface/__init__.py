@@ -113,7 +113,7 @@ class Interface(Qt.QMainWindow):
         Starts the execution of the program by starting the internal
         timer.
         """
-        self.d.running = True
+        self.d.is_running = True
         self.metronome.start()
 
     def pauseExecution(self):
@@ -147,7 +147,7 @@ class Interface(Qt.QMainWindow):
             self.report(error)
         self.update()
         # Reached the end of the program:
-        if not self.d.running:
+        if not self.d.is_running:
             self.metronome.stop()
             self.updateScreen()
 

@@ -103,7 +103,7 @@ class DC():
         self.return_addresses = set()
 
         self.interface = None
-        self.running = False
+        self.is_running = False
 
     def reset(self):
         """
@@ -117,7 +117,7 @@ class DC():
         self.sp.set(self.max_address)
         self.bp.set(self.max_address)
         self.return_addresses = set()
-        self.running = False
+        self.is_running = False
         self.ram.clear()
 
     def getcmd(self, value):
@@ -324,8 +324,8 @@ class DC():
         Execute the whole program until an END is reached or an error
         occurs
         """
-        self.running = True
-        while self.running:
+        self.is_running = True
+        while self.is_running:
             self.cycle()
 
     def cycle(self):
@@ -455,13 +455,13 @@ class DC():
         try:
             value = self.interface.getInput()
         except NoInputValue:
-            self.running = False
+            self.is_running = False
             return
         self.dr.set(value)
         self.savemem()
 
     def END(self):
-        self.running = False
+        self.is_running = False
 
     def PSHM(self):
         self.sp.to(self.ar)
