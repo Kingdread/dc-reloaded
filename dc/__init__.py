@@ -16,7 +16,7 @@ class DCConfig():
     the addresswidth. Maybe this will be expanded later
     """
     def __init__(self):
-        self.addrwidth = 7
+        self.address_width = 7
         self.controlbits = 6
 
 
@@ -84,13 +84,12 @@ class DC():
         Set up a DC with the given config
         """
         self.conf = config
-        aw, cb = config.addrwidth, config.controlbits
-        self.cellwidth = aw + cb
-        self.maddr = 2 ** config.addrwidth - 1
+        self.cellwidth = config.address_width + config.controlbits
+        self.maddr = 2 ** config.address_width - 1
         self.mcontr = 2 ** config.controlbits - 1
         self.maxint = 2 ** (self.cellwidth - 1) - 1
         self.minint = 2 ** (self.cellwidth - 1) * -1
-        self.ram = RAM(2 ** config.addrwidth)
+        self.ram = RAM(2 ** config.address_width)
 
         self.ir = Register("IR", aw + cb)
         self.dr = Register("DR", aw + cb)
@@ -126,7 +125,7 @@ class DC():
         """
         Return the name of the command for the given cell value
         """
-        opc = value >> self.conf.addrwidth
+        opc = value >> self.conf.address_width
         mn = self.mnemo.get(opc, "DEF")
         return mn
 
@@ -159,7 +158,7 @@ class DC():
                 cmd = self.opcodes[line[0].upper()]
             except KeyError:
                 raise ScriptError("Invalid instruction: {}".format(line[0]))
-            cmd <<= self.conf.addrwidth
+            cmd <<= self.conf.address_width
             try:
                 target = int(line[1])
                 if target > self.maddr:
@@ -341,7 +340,7 @@ class DC():
         self.dr.to(self.ir)
         # Step 2: Decode
         self.pc.inc()
-        cmd = self.ir.value >> (self.conf.addrwidth)
+        cmd = self.ir.value >> (self.conf.address_width)
         adr = self.ir.value & self.maddr
         # Step 3: Fetch operands
         self.ar.set(adr)
