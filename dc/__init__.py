@@ -86,9 +86,8 @@ class DC():
         self.conf = config
         self.cellwidth = config.address_width + config.control_bits
         self.max_address = 2 ** config.address_width - 1
-        self.mcontr = 2 ** config.control_bits - 1
-        self.maxint = 2 ** (self.cellwidth - 1) - 1
-        self.minint = 2 ** (self.cellwidth - 1) * -1
+        self.max_int = 2 ** (self.cellwidth - 1) - 1
+        self.min_int = 2 ** (self.cellwidth - 1) * -1
         self.ram = RAM(2 ** config.address_width)
 
         self.ir = Register("IR", config.address_width + config.control_bits)
@@ -148,9 +147,9 @@ class DC():
         if cmd == "DEF":
             try:
                 full = int(line[1])
-                if full > self.maxint or full < self.minint:
-                    raise ScriptError("{} <= x <= {}".format(self.maxint,
-                                                             self.minint))
+                if full > self.max_int or full < self.min_int:
+                    raise ScriptError("{} <= x <= {}".format(self.max_int,
+                                                             self.min_int))
             except ValueError:
                 raise ScriptError("Not a valid integer: {}".format(line[1]))
         else:

@@ -214,8 +214,8 @@ class Interface(Qt.QMainWindow):
         dc.errors.NoInputValue if no value is entered.
         """
         num = Qt.QInputDialog.getInt(
-            self, "Input", "Enter a value:", min=self.d.minint,
-            max=self.d.maxint)
+            self, "Input", "Enter a value:", min=self.d.min_int,
+            max=self.d.max_int)
         if num[1]:
             self.logLine("Input: {}".format(num[0]))
             return num[0]
