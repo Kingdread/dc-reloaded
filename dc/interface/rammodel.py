@@ -30,7 +30,7 @@ class RAMStyler(Qt.QStyledItemDelegate):
         if index.row() == self.d.sp.value:
             option.palette.setColor(QtGui.QPalette.Text, QtCore.Qt.red)
             option.font.setBold(True)
-        elif index.row() in self.d.retaddrs:
+        elif index.row() in self.d.return_addresses:
             option.palette.setColor(QtGui.QPalette.Text, QtCore.Qt.blue)
 
 

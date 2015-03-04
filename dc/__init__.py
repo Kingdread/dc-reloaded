@@ -100,7 +100,7 @@ class DC():
 
         # A collection of addresses pushed onto the stack by JSR so we
         # can color them differently.
-        self.retaddrs = set()
+        self.return_addresses = set()
 
         self.interface = None
         self.running = False
@@ -116,7 +116,7 @@ class DC():
         self.ar.set(0)
         self.sp.set(self.max_address)
         self.bp.set(self.max_address)
-        self.retaddrs = set()
+        self.return_addresses = set()
         self.running = False
         self.ram.clear()
 
@@ -402,7 +402,7 @@ class DC():
         self.pc.to(self.dr)
         self.sp.to(self.ar)
         self.savemem()
-        self.retaddrs.add(self.sp.value)
+        self.return_addresses.add(self.sp.value)
         self.sp.dec()
         self.pc.set(self.ir.value & self.max_address)
 
@@ -411,7 +411,7 @@ class DC():
         self.sp.to(self.ar)
         self.getmem()
         try:
-            self.retaddrs.remove(self.sp.value)
+            self.return_addresses.remove(self.sp.value)
         except KeyError:
             # Bad coded DC program, ignore it (RTN while SP was wrong)
             # the user will probably have to worry about a non-working
