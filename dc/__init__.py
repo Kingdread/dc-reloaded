@@ -91,13 +91,13 @@ class DC():
         self.minint = 2 ** (self.cellwidth - 1) * -1
         self.ram = RAM(2 ** config.address_width)
 
-        self.ir = Register("IR", aw + cb)
-        self.dr = Register("DR", aw + cb)
-        self.pc = Register("PC", aw)
-        self.ac = Register("AC", aw + cb)
-        self.ar = Register("AR", aw)
-        self.sp = Register("SP", aw, self.max_address)
-        self.bp = Register("BP", aw, self.max_address)
+        self.ir = Register("IR", config.address_width + config.control_bits)
+        self.dr = Register("DR", config.address_width + config.control_bits)
+        self.pc = Register("PC", config.address_width)
+        self.ac = Register("AC", config.address_width + config.control_bits)
+        self.ar = Register("AR", config.address_width)
+        self.sp = Register("SP", config.address_width, self.max_address)
+        self.bp = Register("BP", config.address_width, self.max_address)
 
         # A collection of addresses pushed onto the stack by JSR so we
         # can color them differently.
