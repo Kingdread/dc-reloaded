@@ -85,7 +85,7 @@ class DC():
         """
         self.conf = config
         self.cellwidth = config.address_width + config.control_bits
-        self.maddr = 2 ** config.address_width - 1
+        self.max_address = 2 ** config.address_width - 1
         self.mcontr = 2 ** config.control_bits - 1
         self.maxint = 2 ** (self.cellwidth - 1) - 1
         self.minint = 2 ** (self.cellwidth - 1) * -1
@@ -96,8 +96,8 @@ class DC():
         self.pc = Register("PC", aw)
         self.ac = Register("AC", aw + cb)
         self.ar = Register("AR", aw)
-        self.sp = Register("SP", aw, self.maddr)
-        self.bp = Register("BP", aw, self.maddr)
+        self.sp = Register("SP", aw, self.max_address)
+        self.bp = Register("BP", aw, self.max_address)
 
         # A collection of addresses pushed onto the stack by JSR so we
         # can color them differently.
@@ -115,8 +115,8 @@ class DC():
         self.pc.set(0)
         self.ac.set(0)
         self.ar.set(0)
-        self.sp.set(self.maddr)
-        self.bp.set(self.maddr)
+        self.sp.set(self.max_address)
+        self.bp.set(self.max_address)
         self.retaddrs = set()
         self.running = False
         self.ram.clear()
@@ -161,9 +161,9 @@ class DC():
             cmd <<= self.conf.address_width
             try:
                 target = int(line[1])
-                if target > self.maddr:
+                if target > self.max_address:
                     raise InvalidAddress(
-                        "The max value is {}".format(self.maddr))
+                        "The max value is {}".format(self.max_address))
             except ValueError:
                 raise InvalidAddress("Not a valid address: {}".format(line[1]))
             else:
@@ -290,7 +290,7 @@ class DC():
                     .format(no, " ".join(line)))
             try:
                 addr = int(line[0])
-                if addr > self.maddr or addr < 0:
+                if addr > self.max_address or addr < 0:
                     raise ScriptError(
                         "{} is outside of the available memory (line {})"
                         .format(addr, no))
@@ -341,7 +341,7 @@ class DC():
         # Step 2: Decode
         self.pc.inc()
         cmd = self.ir.value >> (self.conf.address_width)
-        adr = self.ir.value & self.maddr
+        adr = self.ir.value & self.max_address
         # Step 3: Fetch operands
         self.ar.set(adr)
         self.getmem()
@@ -405,7 +405,7 @@ class DC():
         self.savemem()
         self.retaddrs.add(self.sp.value)
         self.sp.dec()
-        self.pc.set(self.ir.value & self.maddr)
+        self.pc.set(self.ir.value & self.max_address)
 
     def RTN(self):
         self.sp.inc()
@@ -477,32 +477,36 @@ class DC():
         self.savemem()
 
     def LDAS(self):
-        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.sp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.sp.value + (self.ir.value & self.maddr))
+        self.ar.set(address)
         self.getmem()
         self.dr.to(self.ac)
 
     def STAS(self):
-        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.sp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.sp.value + (self.ir.value & self.maddr))
+        self.ar.set(address)
         self.ac.to(self.dr)
         self.savemem()
 
     def ADDS(self):
-        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.sp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.sp.value + (self.ir.value & self.maddr))
+        self.ar.set(address)
         self.getmem()
         if self.ac.will_overflow(self.ac.signed_value + self.dr.signed_value):
             raise Overflow
         self.ac += self.dr
 
     def SUBS(self):
-        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.sp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.sp.value + (self.ir.value & self.maddr))
+        self.ar.set(address)
         self.getmem()
         if self.ac.will_overflow(self.ac.signed_value - self.dr.signed_value):
             raise Overflow
@@ -527,63 +531,71 @@ class DC():
         self.sp.dec()
 
     def LDAB(self):
-        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.bp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.bp.value + (self.ir.value & self.maddr))
+        self.ar.set(address)
         self.getmem()
         self.dr.to(self.ac)
 
     def STAB(self):
-        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.bp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.bp.value + (self.ir.value & self.maddr))
+        self.ar.set(address)
         self.ac.to(self.dr)
         self.savemem()
 
     def ADDB(self):
-        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.bp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.bp.value + (self.ir.value & self.maddr))
+        self.ar.set(address)
         self.getmem()
         if self.ac.will_overflow(self.ac.signed_value + self.dr.signed_value):
             raise Overflow
         self.ac += self.dr
 
     def SUBB(self):
-        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.bp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.bp.value + (self.ir.value & self.maddr))
+        self.ar.set(address)
         self.getmem()
         if self.ac.will_overflow(self.ac.signed_value - self.dr.signed_value):
             raise Overflow
         self.ac -= self.dr
 
     def OUTS(self):
-        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.sp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.sp.value + (self.ir.value & self.maddr))
+        self.ar.set(address)
         self.getmem()
         self.interface.showOutput(self.dr.signed_value)
 
     def OUTB(self):
-        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.bp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.bp.value + (self.ir.value & self.maddr))
+        self.ar.set(address)
         self.getmem()
         self.interface.showOutput(self.dr.signed_value)
 
     def INS(self):
-        if self.sp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.sp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.sp.value + (self.ir.value & self.maddr))
+        self.ar.set(address)
         value = self.interface.getInput()
         self.dr.set(value)
         self.savemem()
 
     def INB(self):
-        if self.bp.value + (self.ir.value & self.maddr) > self.maddr:
+        address = self.bp.value + (self.ir.value & self.max_address)
+        if address > self.max_address:
             raise InvalidAddress
-        self.ar.set(self.sp.value + (self.ir.value & self.maddr))
+        self.ar.set(address)
         value = self.interface.getInput()
         self.dr.set(value)
         self.savemem()

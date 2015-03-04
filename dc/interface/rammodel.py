@@ -79,7 +79,7 @@ class RAMModel(QtCore.QAbstractItemModel):
             if cmd == "DEF":
                 arg = sval
             else:
-                arg = cell & self.d.maddr
+                arg = cell & self.d.max_address
             return("{adr:3} {cmd:4} {arg:5} | {val:0{w}b} ({sval})".format(
                 adr=adr, cmd=cmd, arg=arg, val=cell, w=self.d.cellwidth,
                 sval=sval))
