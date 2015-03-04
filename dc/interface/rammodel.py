@@ -74,7 +74,7 @@ class RAMModel(QtCore.QAbstractItemModel):
         if role == QtCore.Qt.DisplayRole:
             adr = index.row()
             cell = self.d.ram[adr]
-            cmd = self.d.getcmd(cell)
+            cmd = self.d.command_name(cell)
             sval = signed_value(cell, self.d.cellwidth)
             if cmd == "DEF":
                 arg = sval
@@ -93,7 +93,7 @@ class RAMModel(QtCore.QAbstractItemModel):
                 return False
             cell = index.row()
             try:
-                self.d.ram[cell] = self.d.parsecmd(value)
+                self.d.ram[cell] = self.d.parse_command(value)
             except ScriptError:
                 return False
             self.dataChanged.emit(index, index)
