@@ -20,7 +20,6 @@ class RAMStyler(Qt.QStyledItemDelegate):
     def __init__(self, d):
         super().__init__()
         self.d = d
-        self.i = 0
 
     def initStyleOption(self, option, index):
         """
