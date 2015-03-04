@@ -17,7 +17,7 @@ class DCConfig():
     """
     def __init__(self):
         self.address_width = 7
-        self.controlbits = 6
+        self.control_bits = 6
 
 
 class DC():
@@ -84,9 +84,9 @@ class DC():
         Set up a DC with the given config
         """
         self.conf = config
-        self.cellwidth = config.address_width + config.controlbits
+        self.cellwidth = config.address_width + config.control_bits
         self.maddr = 2 ** config.address_width - 1
-        self.mcontr = 2 ** config.controlbits - 1
+        self.mcontr = 2 ** config.control_bits - 1
         self.maxint = 2 ** (self.cellwidth - 1) - 1
         self.minint = 2 ** (self.cellwidth - 1) * -1
         self.ram = RAM(2 ** config.address_width)

@@ -34,7 +34,7 @@ class DCRegisterView(Qt.QWidget):
         painter.drawText(30, 150, self.d.bp.bin)
         painter.drawText(105, 80, self.d.pc.bin)
         ir = self.d.ir.bin
-        ind = self.d.conf.controlbits
+        ind = self.d.conf.control_bits
         first, second = ir[:ind], ir[ind:]
         painter.drawText(15, 255, "{}  {}".format(first, second))
         painter.drawText(255, 65, self.d.ac.bin)
