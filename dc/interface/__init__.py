@@ -61,10 +61,10 @@ class Interface(Qt.QMainWindow):
         # selecting something in the RAM will change the program counter and
         # that is not what we want.
         self._selection_locked = False
-        
+
         # Command history
         self._history = []
-        self._history_index= 0
+        self._history_index = 0
 
         self._delay_warning_shown = False
         self.gui_enabled = True
@@ -410,9 +410,9 @@ class Interface(Qt.QMainWindow):
                 self.delay = float(cmd[1])
                 self.log_line("Delay set to {}".format(self.delay))
                 if delay < 0.1 and not self._delay_warning_shown:
-                    self.log_line("Warning: A small delay might cause lags or a"
-                                 " complete unresponsiveness of the user inter"
-                                 "face!")
+                    self.log_line("Warning: A small delay might cause lags or "
+                                  "a complete unresponsiveness of the user "
+                                  "interface!")
                     self._delay_warning_shown = True
         elif order == "togglegui":
             self.gui_enabled = not self.gui_enabled
