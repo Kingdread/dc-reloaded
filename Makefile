@@ -10,4 +10,7 @@ lint:
 	@pylint dc || true
 	@flake8 dc --exclude=ui_main.py,resources.py || true
 
-.PHONY: lint
+test:
+	@python3 -m dc.test
+
+.PHONY: lint test
