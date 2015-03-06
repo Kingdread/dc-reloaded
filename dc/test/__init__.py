@@ -10,6 +10,7 @@ import unittest
 
 TEST_FILE_PATTERN = "test*"
 
+
 def get_tests():
     """
     Return a test suite filled with all available test cases.
@@ -20,7 +21,7 @@ def get_tests():
 
     test_files = glob.glob(TEST_FILE_PATTERN)
     test_modules = [name for name, ext in map(os.path.splitext, test_files)]
-    
+
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
 

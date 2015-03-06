@@ -4,6 +4,7 @@ import unittest
 
 from ..parts import Register
 
+
 class RegisterTestCase(unittest.TestCase):
     def setUp(self):
         self.register = Register("Test", 8)
@@ -13,7 +14,7 @@ class RegisterTestCase(unittest.TestCase):
         self.assertEqual(self.register.maxvalue, 255)
         self.assertEqual(self.register.signed_max, 127)
         self.assertEqual(self.register.signed_min, -128)
-    
+
     def test_decrease_increase(self):
         """Assert that decreasing and increasing works"""
         self.register.dec()
