@@ -22,7 +22,7 @@ class RegisterTestCase(unittest.TestCase):
         self.assertEqual(self.register.signed_value, 0)
 
     def test_truncate_at_set_value(self):
-        """Asserting that a value is properly truncated when out of bounds"""
+        """Assert that a value is properly truncated when out of bounds"""
         # bit pattern 111111111 (511)
         #           &  11111111 (255)
         #             ---------
