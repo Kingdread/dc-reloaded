@@ -54,6 +54,7 @@ class Interface(Qt.QMainWindow):
         self.ui.actionRun.triggered.connect(self.start_execution)
         self.ui.actionStep.triggered.connect(self.step)
         self.ui.actionStop.triggered.connect(self.pause_execution)
+        self.ui.actionHelp.triggered.connect(self.open_help)
         self.ui.command.returnPressed.connect(self.exec_command_line)
 
         self.ui.RAM.selectionModel().selectionChanged.connect(self._update_PC)
@@ -244,6 +245,13 @@ class Interface(Qt.QMainWindow):
                 self.update_screen()
             if was_running:
                 self.start_execution()
+
+    def open_help(self):
+        """
+        Open the documentation in a web browser
+        """
+        import webbrowser
+        webbrowser.open("http://kingdread.de/dc-reloaded")
 
     def log_line(self, line):
         """

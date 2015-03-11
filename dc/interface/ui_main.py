@@ -2,8 +2,7 @@
 
 # Form implementation generated from reading ui file 'resource-files/main.ui'
 #
-# Created: Thu Feb 26 15:31:31 2015
-#      by: PyQt5 UI code generator 5.4
+# Created by: PyQt5 UI code generator 5.4.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -136,11 +135,17 @@ class Ui_DCWindow(object):
         icon5.addPixmap(QtGui.QPixmap(":/icons/clear.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionClear.setIcon(icon5)
         self.actionClear.setObjectName("actionClear")
+        self.actionHelp = QtWidgets.QAction(DCWindow)
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionHelp.setIcon(icon6)
+        self.actionHelp.setObjectName("actionHelp")
         self.toolBar.addAction(self.actionRun)
         self.toolBar.addAction(self.actionStep)
         self.toolBar.addAction(self.actionStop)
         self.toolBar.addAction(self.actionOpen)
         self.toolBar.addAction(self.actionClear)
+        self.toolBar.addAction(self.actionHelp)
 
         self.retranslateUi(DCWindow)
         QtCore.QMetaObject.connectSlotsByName(DCWindow)
@@ -183,6 +188,9 @@ class Ui_DCWindow(object):
         self.actionClear.setText(_translate("DCWindow", "Clear"))
         self.actionClear.setToolTip(_translate("DCWindow", "Clear everything"))
         self.actionClear.setShortcut(_translate("DCWindow", "Ctrl+C"))
+        self.actionHelp.setText(_translate("DCWindow", "Help"))
+        self.actionHelp.setToolTip(_translate("DCWindow", "Open the documentation in a browser"))
+        self.actionHelp.setShortcut(_translate("DCWindow", "F1"))
 
 from dc.interface.registerview import DCRegisterView
 from . import resources
