@@ -64,6 +64,10 @@ to start DC reloaded. If you get an error à la
 
 then you need to install [PyQt5][pyqt].
 
+### Windows
+
+Windows installers can be found [here][wininstall] (currently only 64-bit)
+
 Examples
 --------
 
@@ -116,3 +120,4 @@ Have fun!
 [pep8]: https://www.python.org/dev/peps/pep-0008/
 [pyqt]: http://www.riverbankcomputing.co.uk/software/pyqt/intro
 [documentation]: http://kingdread.de/dc-reloaded
+[wininstall]: http://kingdread.de/dc-reloaded/dist
