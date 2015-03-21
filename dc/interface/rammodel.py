@@ -46,10 +46,10 @@ class RAMModel(QtCore.QAbstractItemModel):
         # Just a white box. Needed because otherwise the layout would
         # be messed up between elements with icon and elements without.
         self.empty_icon = QtGui.QPixmap(*ICON_SIZE)
-        self.empty_icon.fill()
+        self.empty_icon.fill(QtGui.QColor(0, 0, 0, 0))
 
         self.breakpoint_icon = QtGui.QPixmap(*ICON_SIZE)
-        self.breakpoint_icon.fill()
+        self.breakpoint_icon.fill(QtGui.QColor(0, 0, 0, 0))
         painter = QtGui.QPainter(self.breakpoint_icon)
         painter.setBrush(QtCore.Qt.red)
         painter.drawEllipse(0, 0, ICON_SIZE[0]-1, ICON_SIZE[1]-1)
