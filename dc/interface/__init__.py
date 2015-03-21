@@ -422,6 +422,23 @@ class Interface(Qt.QMainWindow):
                                   "a complete unresponsiveness of the user "
                                   "interface!")
                     self._delay_warning_shown = True
+        elif order in {"b", "break", "breakpoint"}:
+            try:
+                address = int(cmd[1])
+                if address > self.d.max_address:
+                    raise ValueError
+            except IndexError:
+                Qt.QMessageBox.warning(self, "Invalid",
+                                       "Usage: break &lt;address&gt;")
+            except ValueError:
+                Qt.QMessageBox.warning(self, "Invalid",
+                                       "Address must be a number <= {}"
+                                       .format(self.d.max_address))
+            else:
+                try:
+                    self.d.breakpoints.remove(address)
+                except KeyError:
+                    self.d.breakpoints.add(address)
         elif order == "togglegui":
             self.gui_enabled = not self.gui_enabled
             self.log_line("GUI is now {}".format(
