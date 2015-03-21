@@ -90,6 +90,12 @@ The same as ``pc`` followed by ``run``.
 Set the waiting delay between to statements. The lower this delay is,
 the faster the program executes.
 
+.. rubric:: break(b, breakpoint) *address*
+
+Toggle a breakpoint at the given address. When the breakpoint is reached,
+execution is paused until you continue it. This allows for easier debugging and
+inspection of variables.
+
 .. rubric:: togglegui
 
 Enable/disable the visualization. Good if you want more performance
