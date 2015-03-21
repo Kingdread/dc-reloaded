@@ -10,6 +10,7 @@ from ..errors import ScriptError
 from ..util import signed_value
 from PyQt5 import Qt, QtCore, QtGui
 
+ICON_SIZE = (12, 12)
 
 class RAMStyler(Qt.QStyledItemDelegate):
     # pylint: disable=too-few-public-methods
@@ -42,6 +43,17 @@ class RAMModel(QtCore.QAbstractItemModel):
         super().__init__()
         self.d = d
 
+        # Just a white box. Needed because otherwise the layout would
+        # be messed up between elements with icon and elements without.
+        self.empty_icon = QtGui.QPixmap(*ICON_SIZE)
+        self.empty_icon.fill()
+
+        self.breakpoint_icon = QtGui.QPixmap(*ICON_SIZE)
+        self.breakpoint_icon.fill()
+        painter = QtGui.QPainter(self.breakpoint_icon)
+        painter.setBrush(QtCore.Qt.red)
+        painter.drawEllipse(0, 0, ICON_SIZE[0]-1, ICON_SIZE[1]-1)
+
     def index(self, row, column, parent_):
         """
         Overwritten index from QtCore.QAbstractItemModel
@@ -70,6 +82,7 @@ class RAMModel(QtCore.QAbstractItemModel):
         """
         Overwritten data from QtCore.QAbstractItemModel
         """
+        # Text
         if role == QtCore.Qt.DisplayRole:
             adr = index.row()
             cell = self.d.ram[adr]
@@ -82,6 +95,15 @@ class RAMModel(QtCore.QAbstractItemModel):
             return("{adr:3} {cmd:4} {arg:5} | {val:0{w}b} ({sval})".format(
                 adr=adr, cmd=cmd, arg=arg, val=cell, w=self.d.cellwidth,
                 sval=sval))
+        # Icon
+        elif role == QtCore.Qt.DecorationRole:
+            adr = index.row()
+            icon = None
+            if adr in self.d.breakpoints:
+                icon = self.breakpoint_icon
+            else:
+                icon = self.empty_icon
+            return QtCore.QVariant(icon)
 
     def setData(self, index, value, role):
         """
