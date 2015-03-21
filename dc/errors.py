@@ -52,3 +52,9 @@ class InvalidAddress(ScriptError):
     A more specific ScriptError when a parameter to a jump is an
     invalid address.
     """
+
+
+class Breakpoint(DCError):
+    """
+    Raised when a breakpoint is reached. To be handled by the interface.
+    """

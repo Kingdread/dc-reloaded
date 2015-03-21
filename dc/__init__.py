@@ -6,7 +6,7 @@ Main module of the DC
 """
 from .parts import Register, RAM
 from .errors import (NoInputValue, ScriptError, AssembleError, Overflow,
-                     InvalidAddress, DCError)
+                     InvalidAddress, DCError, Breakpoint)
 from .util import IDict
 
 
@@ -102,6 +102,8 @@ class DC():
         # can color them differently.
         self.return_addresses = set()
 
+        self.breakpoints = set()
+
         self.interface = None
         self.is_running = False
 
@@ -117,6 +119,7 @@ class DC():
         self.sp.set(self.max_address)
         self.bp.set(self.max_address)
         self.return_addresses = set()
+        self.breakpoints = set()
         self.is_running = False
         self.ram.clear()
 
@@ -353,6 +356,15 @@ class DC():
         f = getattr(self, f)
         f()
         # Step 5 (write back) is done in f
+
+        # We detect the breakpoint the command BEFORE reaching the
+        # breakpoint, otherwise starting from a breakpoint'ed point
+        # would be awkward. But it would also be stupid to break if
+        # the current command is END and the breakpoint would never be
+        # reached, so we need to check that too
+        if self.is_running and self.pc.value in self.breakpoints:
+            self.is_running = False
+            raise Breakpoint("Breakpoint for {} set".format(self.pc.value))
 
     def LDA(self):
         self.dr.to(self.ac)
