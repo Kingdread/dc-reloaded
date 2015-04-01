@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 # -*- encoding: utf-8 -*-
-# pylint: disable=too-few-public-methods
 """
 Various utility functions and classes for DC
 """
@@ -26,6 +25,21 @@ def signed_value(val, bits):
         # make it negative again
         val = -1 * val
     return val
+
+
+def number_of_digits(value, base=10):
+    """
+    Returns the number of digits the given number has in the given base
+    >>> number_of_digits(999)
+    3
+    >>> number_of_digits(0b1010, 2)
+    4
+    """
+    if not value:
+        # Even 0 requires at least 1 digit
+        return 1
+    from math import log, floor
+    return floor(log(value) / log(base)) + 1
 
 
 class IDict(dict):
