@@ -4,6 +4,7 @@
 Module contains the main Qt interface class
 """
 from ..errors import ScriptError, AssembleError, DCError, NoInputValue
+from ..util import number_of_digits, signed_value
 from .rammodel import RAMModel, RAMStyler
 from .ui_main import Ui_DCWindow
 from PyQt5 import Qt, QtCore
@@ -51,6 +52,7 @@ class Interface(Qt.QMainWindow):
 
         self.ui.actionClear.triggered.connect(self.clear)
         self.ui.actionOpen.triggered.connect(self.show_load_dialog)
+        self.ui.actionSave.triggered.connect(self.show_save_dialog)
         self.ui.actionRun.triggered.connect(self.start_execution)
         self.ui.actionStep.triggered.connect(self.step)
         self.ui.actionStop.triggered.connect(self.pause_execution)
@@ -275,6 +277,17 @@ class Interface(Qt.QMainWindow):
         elif name.lower().endswith(".dcl"):
             self.assemble_file(name)
 
+    def show_save_dialog(self):
+        """
+        Shows the dialog to ask for a save filename.
+        """
+        # The file dialog already asks for overwrite, so we should be
+        # fine just accepting the filename
+        name, _ = Qt.QFileDialog.getSaveFileName(
+            directory=self.lastdir, caption="Save file")
+        if name:
+            self.save_file(name)
+
     def load_file(self, name):
         """
         Loads the file given by name
@@ -296,6 +309,41 @@ class Interface(Qt.QMainWindow):
                 self, "Error",
                 ("Invalid script file (maybe you forgot to assemble it?):"
                  "<br><b> {}").format(error.msg))
+
+    def save_file(self, name):
+        """
+        Saves the RAM to the given file name
+        """
+        self.lastdir = os.path.dirname(name)
+        ram = self.d.ram
+        address_length = number_of_digits(len(ram), 10)
+        template = "{addr:>{width}} {command:<4} {arg}\n"
+
+        def format_line(i, cell):
+            command = self.d.command_name(cell)
+            arg = cell & self.d.max_address
+            if command == "DEF":
+                arg = signed_value(cell, self.d.cellwidth)
+            return template.format(
+                addr=i,
+                width=address_length,
+                command=command,
+                arg=arg,
+            )
+
+        try:
+            with open(name, "w") as output_file:
+                for i, cell in enumerate(ram):
+                    if not cell:
+                        # If a cell's value is 0, we don't need to save
+                        # it.
+                        continue
+                    line = format_line(i, cell)
+                    output_file.write(line)
+        except IOError as error:
+            Qt.QMessageBox.critical(self, "Error",
+                                    "Can't save {}: {}".format(name, error))
+            return
 
     @staticmethod
     def _assembled_name(name):
