@@ -7,7 +7,6 @@ from cx_Freeze import setup, Executable
 
 def get_version():
     try:
-        raise Exception
         version = subprocess.check_output(["git", "describe"])
         return version.strip().decode("utf-8")
     except Exception as e:
