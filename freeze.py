@@ -7,7 +7,8 @@ from cx_Freeze import setup, Executable
 
 def get_version():
     try:
-        version = subprocess.check_output(["git", "describe"])
+        version = subprocess.check_output(["git", "describe", "--abbrev=0"])
+        version = version.lstrip("v")
         return version.strip().decode("utf-8")
     except Exception as e:
         print(e, file=sys.stderr)
@@ -20,7 +21,7 @@ def get_version():
         content = setup_py.read()
         match = re.search(version_re, content)
         if match:
-            return match.group(2)
+            return match.group(2).lstrip("v")
 
     print("No setup.py version found", file=sys.stderr)
     return "undefined"
