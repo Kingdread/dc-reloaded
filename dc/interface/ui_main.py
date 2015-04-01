@@ -140,10 +140,16 @@ class Ui_DCWindow(object):
         icon6.addPixmap(QtGui.QPixmap(":/icons/help.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionHelp.setIcon(icon6)
         self.actionHelp.setObjectName("actionHelp")
+        self.actionSave = QtWidgets.QAction(DCWindow)
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(QtGui.QPixmap(":/icons/save.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionSave.setIcon(icon7)
+        self.actionSave.setObjectName("actionSave")
         self.toolBar.addAction(self.actionRun)
         self.toolBar.addAction(self.actionStep)
         self.toolBar.addAction(self.actionStop)
         self.toolBar.addAction(self.actionOpen)
+        self.toolBar.addAction(self.actionSave)
         self.toolBar.addAction(self.actionClear)
         self.toolBar.addAction(self.actionHelp)
 
@@ -191,6 +197,8 @@ class Ui_DCWindow(object):
         self.actionHelp.setText(_translate("DCWindow", "Help"))
         self.actionHelp.setToolTip(_translate("DCWindow", "Open the documentation in a browser"))
         self.actionHelp.setShortcut(_translate("DCWindow", "F1"))
+        self.actionSave.setText(_translate("DCWindow", "Save"))
+        self.actionSave.setToolTip(_translate("DCWindow", "Save the current RAM as a file"))
 
 from dc.interface.registerview import DCRegisterView
 from . import resources
