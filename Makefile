@@ -1,14 +1,21 @@
-all: window resources
+all: interface resources
 
-resources: resource-files/resources.qrc
-	pyrcc5 -o dc/interface/resources.py resource-files/resources.qrc
+resources: dc/interface/resources.py
 
-window: resource-files/main.ui
-	pyuic5 -o dc/interface/ui_main.py -x --resource-suffix="" --from-imports resource-files/main.ui
+dc/interface/resources.py: resource-files/resources.qrc
+	pyrcc5 -o $@ $<
+
+interface: dc/interface/ui_main.py dc/interface/ui_editor.py
+
+dc/interface/ui_main.py: resource-files/main.ui
+	pyuic5 -o $@ -x --resource-suffix="" --from-imports $<
+
+dc/interface/ui_editor.py: resource-files/editor.ui
+	pyuic5 -o $@ -x --resource-suffix="" --from-imports $<
 
 lint:
 	@pylint dc || true
-	@flake8 dc --exclude=ui_main.py,resources.py || true
+	@flake8 dc --exclude=ui_editor.py,ui_main.py,resources.py || true
 
 test:
 	@python3 -m dc.test
