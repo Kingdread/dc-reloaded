@@ -4,6 +4,7 @@
 Module containing the tab widget
 """
 from .highlight import Highlighter
+from .. import util
 from PyQt5 import Qt, QtCore
 
 
@@ -21,9 +22,11 @@ class FileTab(Qt.QWidget):
         self.text.setFont(Qt.QFont("DejaVuSansMono"))
         self.text.textChanged.connect(self._text_changed)
         self.text.cursorPositionChanged.connect(self.highlight_current_line)
+        self.highlight_current_line()
         self.layout().addWidget(self.text)
 
         self.highlighter = Highlighter(self.text.document())
+        self.line_numbers = LineNumberWidget(self.text)
 
         self.modified = False
 
@@ -106,3 +109,94 @@ class FileTab(Qt.QWidget):
         selection.cursor = self.text.textCursor()
         selection.cursor.clearSelection()
         self.text.setExtraSelections([selection])
+
+
+class LineNumberWidget(Qt.QWidget):
+    """
+    A widget providing line numbers for a TextWidget
+    """
+    MARGIN_RIGHT = 3
+    MARGIN_LEFT = 3
+    BACKGROUND_COLOR = QtCore.Qt.darkCyan
+    TEXT_COLOR = QtCore.Qt.white
+
+    def __init__(self, editor):
+        super().__init__(editor)
+        self.editor = editor
+
+        self.editor.blockCountChanged.connect(self.update_width)
+        self.editor.updateRequest.connect(self.update_area)
+        self.editor.installEventFilter(self)
+
+        self.update_width(0)
+
+    def eventFilter(self, obj, event):
+        """
+        Overwritten eventFilter to get the ResizeEvent for the editor.
+        """
+        if obj == self.editor and event.type() == Qt.QEvent.Resize:
+            self.update_width(0)
+        return False
+
+    def paintEvent(self, event):
+        """
+        Overwritten paintEvent to draw the numbers.
+        """
+        painter = Qt.QPainter(self)
+        painter.fillRect(event.rect(), self.BACKGROUND_COLOR)
+
+        block = self.editor.firstVisibleBlock()
+        block_number = block.blockNumber()
+        top = self.editor.blockBoundingGeometry(block)
+        top = top.translated(self.editor.contentOffset()).top()
+        bottom = top + self.editor.blockBoundingRect(block).height()
+
+        while block.isValid() and top <= event.rect().bottom():
+            if block.isVisible() and bottom >= event.rect().top():
+                number = str(block_number + 1)
+                painter.setPen(self.TEXT_COLOR)
+                painter.drawText(
+                    0, top, self.width() - self.MARGIN_RIGHT,
+                    self.editor.fontMetrics().height(), QtCore.Qt.AlignRight,
+                    number,
+                )
+            block = block.next()
+            top = bottom
+            bottom = top + self.editor.blockBoundingRect(block).height()
+            block_number += 1
+
+    def calculate_width(self):
+        """
+        Calculate the width of the widget based on the hightest line number.
+        The returned value already contains the margins.
+        """
+        max_number = max(1, self.editor.blockCount())
+        digits = util.number_of_digits(max_number, 10)
+        width = self.editor.fontMetrics().width("9") * digits
+        return width + self.MARGIN_RIGHT + self.MARGIN_LEFT
+
+    def update_width(self, count_):
+        """
+        Update the parent's margin and the own width. The _count parameter is
+        ignored, but provided because the blockCountChanged event sends it.
+        """
+        self.editor.setViewportMargins(self.calculate_width(), 0, 0, 0)
+        content_rect = self.editor.contentsRect()
+        self.setGeometry(Qt.QRect(
+            content_rect.left(),
+            content_rect.top(),
+            self.calculate_width(),
+            content_rect.height(),
+        ))
+
+    def update_area(self, rect, delta_y):
+        """
+        Update the area when the widget is scrolled.
+        """
+        if delta_y:
+            self.scroll(0, delta_y)
+        else:
+            self.update(0, rect.y(), self.width(), rect.height())
+
+        if rect.contains(self.editor.viewport().rect()):
+            self.update_width(0)
