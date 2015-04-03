@@ -86,6 +86,12 @@ class Editor(Qt.QMainWindow):
         except IOError as error:
             Qt.QMessageBox.critical(self, "Error",
                                     "Couldn't save: {}".format(error))
+        else:
+            # This might seem unnecessary, but if the file is saved for
+            # the first time, the name will change and we have to update
+            # the tab text
+            tab_text = os.path.basename(tab.filename)
+            self.ui.tabs.setTabText(self.ui.tabs.currentIndex(), tab_text)
 
     def save_current_tab_as(self):
         """

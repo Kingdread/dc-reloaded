@@ -27,6 +27,11 @@ class FileTab(Qt.QWidget):
         self.modified = False
 
     def _text_changed(self):
+        """
+        Function called when the text has changed. Sets the modified flag
+        """
+        if not self.text.toPlainText() and self.filename is None:
+            return
         self.modified = True
 
     def save(self):
@@ -34,7 +39,7 @@ class FileTab(Qt.QWidget):
         Re-save the file under the old filename.
         """
         if not self.filename:
-            self.save_as_dialog()
+            self.save_as()
             return
         with open(self.filename, "w") as output_file:
             output_file.write(self.text.toPlainText())
@@ -60,7 +65,7 @@ class FileTab(Qt.QWidget):
         text = self.text.toPlainText()
         lines = text.split("\n")
         result = []
-        for no, line in enumerate(lines):
+        for number, line in enumerate(lines):
             splitted = line.split(" ", 1)
             try:
                 int(splitted[0])
@@ -70,7 +75,7 @@ class FileTab(Qt.QWidget):
             else:
                 # First element is already a line number, remove it
                 new_line = splitted[1]
-            result.append("{} {}".format(no, new_line))
+            result.append("{} {}".format(number, new_line))
         self.text.setPlainText("\n".join(result))
 
     def try_reload(self):
