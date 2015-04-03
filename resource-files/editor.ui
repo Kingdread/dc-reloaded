@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Editor</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/icons/editor.png</normaloff>:/icons/editor.png</iconset>
+  </property>
   <property name="documentMode">
    <bool>true</bool>
   </property>
@@ -73,7 +77,9 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">
    <property name="icon">
-    <iconset theme="document-open"/>
+    <iconset theme="document-open">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Open</string>
@@ -81,7 +87,9 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset theme="document-save"/>
+    <iconset theme="document-save">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Save</string>
@@ -89,7 +97,9 @@
   </action>
   <action name="actionEnumerate">
    <property name="icon">
-    <iconset theme="insert-text"/>
+    <iconset theme="insert-text">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Fix line numbers</string>
@@ -97,7 +107,9 @@
   </action>
   <action name="actionNew">
    <property name="icon">
-    <iconset theme="document-new"/>
+    <iconset theme="document-new">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>New</string>
@@ -109,6 +121,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
