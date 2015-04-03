@@ -5,6 +5,7 @@ Module containing the tab widget
 """
 from .highlight import Highlighter
 from .. import util
+from .. import DC
 from PyQt5 import Qt, QtCore
 
 
@@ -68,8 +69,15 @@ class FileTab(Qt.QWidget):
         """
         text = self.text.toPlainText()
         lines = text.split("\n")
+        number = 0
         result = []
-        for number, line in enumerate(lines):
+        for line in lines:
+            stripped = DC.strip_comment(line).strip()
+            if not stripped:
+                # An empty line doesn't deserve a number but we still
+                # need to include it. Same with comment only lines
+                result.append(line)
+                continue
             splitted = line.split(" ", 1)
             try:
                 int(splitted[0])
@@ -80,6 +88,7 @@ class FileTab(Qt.QWidget):
                 # First element is already a line number, remove it
                 new_line = splitted[1]
             result.append("{} {}".format(number, new_line))
+            number += 1
         self.text.setPlainText("\n".join(result))
 
     def try_reload(self):
