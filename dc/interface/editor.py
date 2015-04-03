@@ -136,4 +136,5 @@ class Editor(Qt.QMainWindow):
                     event.ignore()
                     return
                 break
+        self.ui.tabs.clear()
         event.accept()

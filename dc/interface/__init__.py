@@ -7,6 +7,7 @@ from ..errors import ScriptError, AssembleError, DCError, NoInputValue
 from ..util import number_of_digits, signed_value
 from .rammodel import RAMModel, RAMStyler
 from .ui_main import Ui_DCWindow
+from .editor import Editor
 from PyQt5 import Qt, QtCore
 import os
 
@@ -57,6 +58,7 @@ class Interface(Qt.QMainWindow):
         self.ui.actionStep.triggered.connect(self.step)
         self.ui.actionStop.triggered.connect(self.pause_execution)
         self.ui.actionHelp.triggered.connect(self.open_help)
+        self.ui.actionEditor.triggered.connect(self.show_editor)
         self.ui.command.returnPressed.connect(self.exec_command_line)
 
         self.ui.RAM.selectionModel().selectionChanged.connect(self._update_PC)
@@ -64,6 +66,8 @@ class Interface(Qt.QMainWindow):
         # selecting something in the RAM will change the program counter and
         # that is not what we want.
         self._selection_locked = False
+
+        self.editor = Editor()
 
         # Command history
         self._history = []
@@ -394,6 +398,10 @@ class Interface(Qt.QMainWindow):
                 " file to {}. It still got loaded, but you need to assemble it"
                 " again next time.".format(name))
 
+    def show_editor(self):
+        self.editor.show()
+        self.editor.raise_()
+
     def exec_command_line(self):
         """
         Hook executed when the user presses enter in the cmdline.
@@ -470,6 +478,8 @@ class Interface(Qt.QMainWindow):
                                   "a complete unresponsiveness of the user "
                                   "interface!")
                     self._delay_warning_shown = True
+        elif order in {"e", "ed", "editor"}:
+            self.show_editor()
         elif order in {"b", "break", "breakpoint"}:
             try:
                 address = int(cmd[1])
