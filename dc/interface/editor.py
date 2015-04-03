@@ -56,6 +56,7 @@ class Editor(Qt.QMainWindow):
         tab = FileTab(filename)
         tab.try_reload()
         self.ui.tabs.addTab(tab, self.new_tab_icon, tab_text)
+        self.ui.tabs.setCurrentIndex(self.ui.tabs.count() - 1)
 
     def close_tab(self, index):
         """
