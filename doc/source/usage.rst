@@ -90,6 +90,10 @@ The same as ``pc`` followed by ``run``.
 Set the waiting delay between to statements. The lower this delay is,
 the faster the program executes.
 
+.. rubric:: editor(ed, e)
+
+Open the built in editor.
+
 .. rubric:: break(b, breakpoint) *address*
 
 Toggle a breakpoint at the given address. When the breakpoint is reached,

@@ -3,16 +3,18 @@
 """
 Startscript for DC
 """
-from dc import DC, DCConfig
+from dc import DC, DCConfig, util
 from dc.interface import Interface
 from dc.interface import resources #pylint: disable=unused-import
 import sys
 from PyQt5 import Qt, QtGui
 
+
 def main():
     """DC main entry point"""
     app = Qt.QApplication(sys.argv)
     QtGui.QFontDatabase.addApplicationFont(":/fonts/DejaVuSansMono.ttf")
+    util.fix_qt_icon_theme()
     config = DCConfig()
     dc_object = DC(config)
     interface = Interface(dc_object)
