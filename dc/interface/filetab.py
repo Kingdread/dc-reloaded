@@ -119,6 +119,19 @@ class FileTab(Qt.QWidget):
         selection.cursor.clearSelection()
         self.text.setExtraSelections([selection])
 
+    def highlight_error_line(self, line_number):
+        """
+        Highlight the given line to mark it as erroneous
+        """
+        color = Qt.QColor(QtCore.Qt.red).lighter(140)
+        selection = Qt.QTextEdit.ExtraSelection()
+        selection.format.setBackground(color)
+        selection.format.setProperty(Qt.QTextFormat.FullWidthSelection, True)
+        block = self.text.document().findBlockByNumber(line_number)
+        cursor = Qt.QTextCursor(block)
+        selection.cursor = cursor
+        self.text.setExtraSelections([selection])
+
 
 class LineNumberWidget(Qt.QWidget):
     """

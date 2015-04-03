@@ -9,9 +9,10 @@ class DCError(Exception):
     """
     Base class for all DC related errors
     """
-    def __init__(self, msg=""):
+    def __init__(self, msg="", line_number=None):
         super().__init__()
         self.msg = msg
+        self.line_number = line_number
 
     def __str__(self):
         if self.msg:

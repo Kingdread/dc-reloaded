@@ -67,7 +67,7 @@ class Interface(Qt.QMainWindow):
         # that is not what we want.
         self._selection_locked = False
 
-        self.editor = Editor()
+        self.editor = Editor(self)
 
         # Command history
         self._history = []

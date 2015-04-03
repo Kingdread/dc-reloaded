@@ -71,6 +71,7 @@
     <addaction name="actionSave_as"/>
     <addaction name="separator"/>
     <addaction name="actionEnumerate"/>
+    <addaction name="actionTransfer"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -118,6 +119,16 @@
   <action name="actionSave_as">
    <property name="text">
     <string>Save as...</string>
+   </property>
+  </action>
+  <action name="actionTransfer">
+   <property name="icon">
+    <iconset theme="media-playback-start">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Load to simulator</string>
    </property>
   </action>
  </widget>

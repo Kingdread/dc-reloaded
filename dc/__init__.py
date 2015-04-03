@@ -223,7 +223,7 @@ class DC():
                     if l in v:
                         raise AssembleError(
                             "Variable {} already assigned (line {})"
-                            .format(l, lno))
+                            .format(l, lno), lno - 1)
                     v[l] = int(line.pop(0))
                     break
                 else:
@@ -238,7 +238,7 @@ class DC():
                     if token in v:
                         raise AssembleError(
                             "Label {} already defined (line {})"
-                            .format(token, lno))
+                            .format(token, lno), lno - 1)
                     v[token] = no
                 l = token
 
@@ -258,7 +258,7 @@ class DC():
                     except ValueError:
                         raise AssembleError(
                             "Invalid address: {} (line {})"
-                            .format(adr, token[0]))
+                            .format(adr, token[0]), token[0] - 1)
                 res.append("{} {} {}".format(no, token[1], adr))
             else:
                 res.append("{} {}".format(no, token[1]))
@@ -289,21 +289,22 @@ class DC():
             if len(line) < 2 or len(line) > 3:
                 raise ScriptError(
                     "Invalid line {}: {}"
-                    .format(no, " ".join(line)))
+                    .format(no, " ".join(line)), no - 1)
             try:
                 addr = int(line[0])
                 if addr > self.max_address or addr < 0:
                     raise ScriptError(
                         "{} is outside of the available memory (line {})"
-                        .format(addr, no))
+                        .format(addr, no), no - 1)
             except ValueError:
-                raise ScriptError(
+                raise InvalidAddress(
                     "Not a valid address: {} (line {})"
-                    .format(line[0], no))
+                    .format(line[0], no), no - 1)
             try:
                 full = self.parse_command(line[1:])
             except DCError as error:
                 error.msg += " (line {})".format(no)
+                error.line_number = no - 1
                 raise error
             self.ram[addr] = full
 

@@ -5,6 +5,7 @@ Module containing the editor window
 """
 from .ui_editor import Ui_Editor
 from .filetab import FileTab
+from ..errors import DCError
 from PyQt5 import Qt
 import os
 
@@ -18,8 +19,10 @@ class Editor(Qt.QMainWindow):
     # Filename used by File -> New
     NEW_FILE_NAME = "New File"
 
-    def __init__(self):
+    def __init__(self, interface):
         super().__init__()
+        self.interface = interface
+        self.dc_object = interface.d
         self.ui = Ui_Editor()
         self.ui.setupUi(self)
         self.new_tab_icon = Qt.QIcon.fromTheme("document-properties")
@@ -30,6 +33,7 @@ class Editor(Qt.QMainWindow):
         self.ui.actionSave_as.triggered.connect(self.save_current_tab_as)
         self.ui.actionOpen.triggered.connect(self.open_file_dialog)
         self.ui.actionEnumerate.triggered.connect(self.enumerate_current)
+        self.ui.actionTransfer.triggered.connect(self.transfer_to_simulator)
 
     def create_new_file(self):
         """
@@ -143,3 +147,32 @@ class Editor(Qt.QMainWindow):
                 break
         self.ui.tabs.clear()
         event.accept()
+
+    def transfer_to_simulator(self):
+        """
+        Transfer the currently focused program to the simulator. Does not
+        require a save.
+        """
+        tab = self.ui.tabs.currentWidget()
+        if tab is None:
+            return
+        lines = tab.text.toPlainText().split("\n")
+        error = None
+        try:
+            self.dc_object.load(lines)
+        except DCError:
+            # That's okay, maybe we need to assemble it first
+            try:
+                assembled = self.dc_object.assemble(lines)
+            except DCError as exc_error:
+                error = exc_error
+            else:
+                try:
+                    self.dc_object.load(assembled)
+                except DCError as exc_error:
+                    error = exc_error
+        if error is None:
+            self.interface.raise_()
+        else:
+            tab.highlight_error_line(error.line_number)
+            Qt.QMessageBox.critical(self, "Error", str(error))

@@ -55,12 +55,17 @@ class Ui_Editor(object):
         self.actionNew.setObjectName("actionNew")
         self.actionSave_as = QtWidgets.QAction(Editor)
         self.actionSave_as.setObjectName("actionSave_as")
+        self.actionTransfer = QtWidgets.QAction(Editor)
+        icon = QtGui.QIcon.fromTheme("media-playback-start")
+        self.actionTransfer.setIcon(icon)
+        self.actionTransfer.setObjectName("actionTransfer")
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionSave_as)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionEnumerate)
+        self.menuFile.addAction(self.actionTransfer)
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(Editor)
@@ -76,6 +81,7 @@ class Ui_Editor(object):
         self.actionEnumerate.setText(_translate("Editor", "Fix line numbers"))
         self.actionNew.setText(_translate("Editor", "New"))
         self.actionSave_as.setText(_translate("Editor", "Save as..."))
+        self.actionTransfer.setText(_translate("Editor", "Load to simulator"))
 
 from . import resources
 
