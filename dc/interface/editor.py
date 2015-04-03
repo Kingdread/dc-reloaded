@@ -29,6 +29,7 @@ class Editor(Qt.QMainWindow):
         self.ui.actionSave.triggered.connect(self.save_current_tab)
         self.ui.actionSave_as.triggered.connect(self.save_current_tab_as)
         self.ui.actionOpen.triggered.connect(self.open_file_dialog)
+        self.ui.actionEnumerate.triggered.connect(self.enumerate_current)
 
     def create_new_file(self):
         """
@@ -100,6 +101,15 @@ class Editor(Qt.QMainWindow):
         else:
             tab_text = os.path.basename(tab.filename)
             self.ui.tabs.setTabText(self.ui.tabs.currentIndex(), tab_text)
+
+    def enumerate_current(self):
+        """
+        Fix the line numbers in the currently selected tab
+        """
+        tab = self.ui.tabs.currentWidget()
+        if tab is None:
+            return
+        tab.fix_line_numbers()
 
     def closeEvent(self, event):
         """

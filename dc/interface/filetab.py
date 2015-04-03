@@ -49,6 +49,27 @@ class FileTab(Qt.QWidget):
         self.filename = filename
         self.modified = False
 
+    def fix_line_numbers(self):
+        """
+        Remove each line number and add them back automatically, starting with
+        0
+        """
+        text = self.text.toPlainText()
+        lines = text.split("\n")
+        result = []
+        for no, line in enumerate(lines):
+            splitted = line.split(" ", 1)
+            try:
+                int(splitted[0])
+            except ValueError:
+                # First element is not a number, keep it
+                new_line = " ".join(splitted)
+            else:
+                # First element is already a line number, remove it
+                new_line = splitted[1]
+            result.append("{} {}".format(no, new_line))
+        self.text.setPlainText("\n".join(result))
+
     def try_reload(self):
         """
         Try to reload the file from disk. Returns True if the file could be
