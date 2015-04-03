@@ -4,7 +4,7 @@
 Module containing the tab widget
 """
 from .highlight import Highlighter
-from PyQt5 import Qt
+from PyQt5 import Qt, QtCore
 
 
 class FileTab(Qt.QWidget):
@@ -20,6 +20,7 @@ class FileTab(Qt.QWidget):
         self.text = Qt.QPlainTextEdit()
         self.text.setFont(Qt.QFont("DejaVuSansMono"))
         self.text.textChanged.connect(self._text_changed)
+        self.text.cursorPositionChanged.connect(self.highlight_current_line)
         self.layout().addWidget(self.text)
 
         self.highlighter = Highlighter(self.text.document())
@@ -93,3 +94,15 @@ class FileTab(Qt.QWidget):
         else:
             self.modified = False
             return True
+
+    def highlight_current_line(self):
+        """
+        Called when the cursor changes to highlight the current line
+        """
+        color = Qt.QColor(QtCore.Qt.cyan).lighter(160)
+        selection = Qt.QTextEdit.ExtraSelection()
+        selection.format.setBackground(color)
+        selection.format.setProperty(Qt.QTextFormat.FullWidthSelection, True)
+        selection.cursor = self.text.textCursor()
+        selection.cursor.clearSelection()
+        self.text.setExtraSelections([selection])
