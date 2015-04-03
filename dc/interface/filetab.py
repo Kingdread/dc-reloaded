@@ -3,6 +3,7 @@
 """
 Module containing the tab widget
 """
+from .highlight import Highlighter
 from PyQt5 import Qt
 
 
@@ -20,6 +21,8 @@ class FileTab(Qt.QWidget):
         self.text.setFont(Qt.QFont("DejaVuSansMono"))
         self.text.textChanged.connect(self._text_changed)
         self.layout().addWidget(self.text)
+
+        self.highlighter = Highlighter(self.text.document())
 
         self.modified = False
 
