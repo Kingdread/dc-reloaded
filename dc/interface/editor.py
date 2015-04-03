@@ -52,6 +52,11 @@ class Editor(Qt.QMainWindow):
         """
         Open the given file in a new tab.
         """
+        for i in range(self.ui.tabs.count()):
+            tab = self.ui.tabs.widget(i)
+            if tab.filename == filename:
+                self.ui.tabs.setCurrentIndex(i)
+                return
         tab_text = os.path.basename(filename)
         tab = FileTab(filename)
         tab.try_reload()
