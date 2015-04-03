@@ -145,6 +145,11 @@ class Ui_DCWindow(object):
         icon7.addPixmap(QtGui.QPixmap(":/icons/save.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionSave.setIcon(icon7)
         self.actionSave.setObjectName("actionSave")
+        self.actionEditor = QtWidgets.QAction(DCWindow)
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap(":/icons/editor.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionEditor.setIcon(icon8)
+        self.actionEditor.setObjectName("actionEditor")
         self.toolBar.addAction(self.actionRun)
         self.toolBar.addAction(self.actionStep)
         self.toolBar.addAction(self.actionStop)
@@ -152,6 +157,7 @@ class Ui_DCWindow(object):
         self.toolBar.addAction(self.actionSave)
         self.toolBar.addAction(self.actionClear)
         self.toolBar.addAction(self.actionHelp)
+        self.toolBar.addAction(self.actionEditor)
 
         self.retranslateUi(DCWindow)
         QtCore.QMetaObject.connectSlotsByName(DCWindow)
@@ -199,6 +205,9 @@ class Ui_DCWindow(object):
         self.actionHelp.setShortcut(_translate("DCWindow", "F1"))
         self.actionSave.setText(_translate("DCWindow", "Save"))
         self.actionSave.setToolTip(_translate("DCWindow", "Save the current RAM as a file"))
+        self.actionEditor.setText(_translate("DCWindow", "Editor"))
+        self.actionEditor.setToolTip(_translate("DCWindow", "Open the script editor"))
+        self.actionEditor.setShortcut(_translate("DCWindow", "Ctrl+E"))
 
 from dc.interface.registerview import DCRegisterView
 from . import resources

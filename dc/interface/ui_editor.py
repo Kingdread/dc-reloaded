@@ -12,6 +12,9 @@ class Ui_Editor(object):
     def setupUi(self, Editor):
         Editor.setObjectName("Editor")
         Editor.resize(800, 600)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/icons/editor.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        Editor.setWindowIcon(icon)
         Editor.setDocumentMode(True)
         self.centralwidget = QtWidgets.QWidget(Editor)
         self.centralwidget.setObjectName("centralwidget")
@@ -74,6 +77,7 @@ class Ui_Editor(object):
         self.actionNew.setText(_translate("Editor", "New"))
         self.actionSave_as.setText(_translate("Editor", "Save as..."))
 
+from . import resources
 
 if __name__ == "__main__":
     import sys
