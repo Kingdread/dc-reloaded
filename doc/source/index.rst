@@ -13,6 +13,7 @@ Contents:
    
    installation
    usage
+   editor
    hardware
    fileformat
    examples
