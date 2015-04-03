@@ -233,6 +233,7 @@
    <addaction name="actionSave"/>
    <addaction name="actionClear"/>
    <addaction name="actionHelp"/>
+   <addaction name="actionEditor"/>
   </widget>
   <action name="actionRun">
    <property name="icon">
@@ -334,6 +335,21 @@
    </property>
    <property name="toolTip">
     <string>Save the current RAM as a file</string>
+   </property>
+  </action>
+  <action name="actionEditor">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/editor.png</normaloff>:/icons/editor.png</iconset>
+   </property>
+   <property name="text">
+    <string>Editor</string>
+   </property>
+   <property name="toolTip">
+    <string>Open the script editor</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
    </property>
   </action>
  </widget>
