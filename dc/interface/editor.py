@@ -68,6 +68,8 @@ class Editor(Qt.QMainWindow):
         tab.try_reload()
         self.ui.tabs.addTab(tab, self.new_tab_icon, tab_text)
         self.ui.tabs.setCurrentIndex(self.ui.tabs.count() - 1)
+        if filename:
+            self.ui.tabs.setTabToolTip(self.ui.tabs.count() - 1, filename)
 
     def close_tab(self, index):
         """
@@ -103,6 +105,8 @@ class Editor(Qt.QMainWindow):
             # the tab text
             tab_text = os.path.basename(tab.filename)
             self.ui.tabs.setTabText(self.ui.tabs.currentIndex(), tab_text)
+            self.ui.tabs.setTabToolTip(self.ui.tabs.currentIndex(),
+                                       tab.filename)
 
     def save_current_tab_as(self):
         """
