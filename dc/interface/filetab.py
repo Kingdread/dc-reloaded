@@ -20,6 +20,12 @@ class FileTab(Qt.QWidget):
         self.setLayout(Qt.QGridLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.text = Qt.QPlainTextEdit()
+        self.text.setStyleSheet("""
+        QPlainTextEdit {
+            background: white;
+            color: black;
+        }
+        """)
         self.text.setFont(Qt.QFont("DejaVu Sans Mono"))
         self.text.textChanged.connect(self._text_changed)
         self.text.cursorPositionChanged.connect(self.highlight_current_line)
