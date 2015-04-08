@@ -480,6 +480,13 @@ class Interface(Qt.QMainWindow):
                     self._delay_warning_shown = True
         elif order in {"e", "ed", "editor"}:
             self.show_editor()
+            if len(cmd) > 1:
+                filename = cmd[1]
+                # We take the abspath because the user most likely wont enter
+                # the full path. This way we're on the safe side if we somehow
+                # change the current working directory afterwards
+                path = os.path.abspath(filename)
+                self.editor.open_new_tab(path)
         elif order in {"b", "break", "breakpoint"}:
             try:
                 address = int(cmd[1])

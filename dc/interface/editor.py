@@ -56,6 +56,8 @@ class Editor(Qt.QMainWindow):
         """
         Open the given file in a new tab.
         """
+        # Check if the filename is already openend in a tab, if yes,
+        # then switch to that tab instead
         for i in range(self.ui.tabs.count()):
             tab = self.ui.tabs.widget(i)
             if tab.filename == filename:

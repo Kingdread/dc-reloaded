@@ -90,9 +90,9 @@ The same as ``pc`` followed by ``run``.
 Set the waiting delay between to statements. The lower this delay is,
 the faster the program executes.
 
-.. rubric:: editor(ed, e)
+.. rubric:: editor(ed, e) *[filename]*
 
-Open the built in editor.
+Open the built in editor. You can optionally give a filename to edit.
 
 .. rubric:: break(b, breakpoint) *address*
 
