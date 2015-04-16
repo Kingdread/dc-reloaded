@@ -60,7 +60,7 @@ Installation in a virtual env (Linux)
 -------------------------------------
 
 A `virtual env`_ provides a way to keep dependencies of a program bundled
-together and seperate of the global python installation or other virtual
+together and separate of the global python installation or other virtual
 environments. Installing DC reloaded in such an environment is straightforward
 and prefered over the system wide installation if you want to keep your global
 libraries clean.
