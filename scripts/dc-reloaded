@@ -6,12 +6,25 @@ Startscript for DC
 from dc import DC, DCConfig, util
 from dc.interface import Interface
 from dc.interface import resources #pylint: disable=unused-import
+import logging
 import sys
 from PyQt5 import Qt, QtGui
 
 
 def main():
     """DC main entry point"""
+    log_args = {
+        "level": "INFO",
+        "style": "{",
+        "format": "{asctime} [{levelname:8}] ({name}) {{{funcName}}} | {message}",
+    }
+    if "-v" in sys.argv:
+        log_args["level"] = "DEBUG"
+    logging.basicConfig(**log_args)
+    logging.info("Starting dc-reloaded")
+    logging.debug(
+        "Note: To turn off debug messages, restart dc-reloaded without -v")
+
     app = Qt.QApplication(sys.argv)
     QtGui.QFontDatabase.addApplicationFont(":/fonts/DejaVuSansMono.ttf")
     util.fix_qt_icon_theme()

@@ -4,9 +4,13 @@
 Various utility functions and classes for DC
 """
 import ast
+import logging
 import os
 import subprocess
 import sys
+
+
+logger = logging.getLogger(__name__)
 
 
 def signed_value(val, bits):
@@ -89,6 +93,7 @@ def fix_qt_icon_theme():
     from PyQt5 import QtGui
 
     env_name = get_desktop_environment()
+    logger.debug("Detected DE: %s", env_name)
     if env_name == "mate":
         # We can get the icon theme name via dconf
         command = ["dconf", "read", "/org/mate/desktop/interface/icon-theme"]
@@ -103,6 +108,7 @@ def fix_qt_icon_theme():
             icon_theme = icon_theme.decode("ascii", "ignore").strip()
             # looks like the output is enclosed in quotes
             icon_theme = ast.literal_eval(icon_theme)
+            logger.debug("Icon theme: %s", icon_theme)
             if not icon_theme:
                 return
             paths = QtGui.QIcon.themeSearchPaths()
