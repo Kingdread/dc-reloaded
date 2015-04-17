@@ -8,8 +8,13 @@ from ..util import number_of_digits, signed_value
 from .rammodel import RAMModel, RAMStyler
 from .ui_main import Ui_DCWindow
 from .editor import Editor
+from .help import HelpWindow
 from PyQt5 import Qt, QtCore
+import logging
 import os
+
+
+logger = logging.getLogger(__name__)
 
 
 class Interface(Qt.QMainWindow):
@@ -20,6 +25,7 @@ class Interface(Qt.QMainWindow):
     """
 
     DEFAULT_DELAY = 0.5  # in seconds
+    SHORT_HELP_RESOURCE = "static/short_help.html"
 
     def __init__(self, d):
         """
@@ -68,6 +74,23 @@ class Interface(Qt.QMainWindow):
         self._selection_locked = False
 
         self.editor = Editor(self)
+
+        # Try to get the resource stream
+        try:
+            from pkg_resources import resource_stream
+        except ImportError:
+            # This won't work with modules in .zip files, but try anyway
+            logger.debug("Can't use pkr_resources, falling back to __file__")
+            dir_name = os.path.dirname(__file__)
+            full_path = os.path.join(dir_name, self.SHORT_HELP_RESOURCE)
+            logger.debug("Resource path: %s", full_path)
+            # resource_stream opens in binary mode, so we need to do the same
+            help_stream = open(full_path, "rb")
+        else:
+            help_stream = resource_stream(__name__, self.SHORT_HELP_RESOURCE)
+        help_content = help_stream.read().decode("utf-8")
+        self.help = HelpWindow(self, help_content)
+        help_stream.close()
 
         # Command history
         self._history = []
@@ -402,6 +425,11 @@ class Interface(Qt.QMainWindow):
         self.editor.show()
         self.editor.raise_()
 
+    def show_help(self):
+        """Make the help window visible"""
+        self.help.show()
+        self.help.raise_()
+
     def exec_command_line(self):
         """
         Hook executed when the user presses enter in the cmdline.
@@ -487,6 +515,8 @@ class Interface(Qt.QMainWindow):
                 # change the current working directory afterwards
                 path = os.path.abspath(filename)
                 self.editor.open_new_tab(path)
+        elif order in {"h", "help"}:
+            self.show_help()
         elif order in {"b", "break", "breakpoint"}:
             try:
                 address = int(cmd[1])

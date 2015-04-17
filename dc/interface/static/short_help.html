@@ -1,0 +1,199 @@
+<html>
+  <head>
+    <style>
+      body {
+        font-family: deja vu sans mono;
+      }
+      table.instructions {
+        border-collapse: seperate;
+        border-spacing: 5px;
+      }
+      table.instructions thead {
+        font-weight: bold;
+      }
+      table.instructions td {
+        padding-right: 4px;
+        padding-left: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <p>
+      DC simulates a small processor for teaching and learning purposes.
+    </p>
+    <p>
+      Original<br>
+      &copy; 1987&nbsp;&nbsp;&nbsp;&nbsp; Zbigniew Szkaradnik<br>
+      &copy; 1988..02 Horst Gierhardt (www.gierhardt.de)
+    </p>
+    <p>
+      dc-reloaded &copy; 2014..15 Daniel Schadt
+    </p>
+
+    <h3>Registers</h3>
+    <p>
+      AC accumulator<br>
+      DR data register<br>
+      AR address register<br>
+      IR instruction register<br>
+      PC program counter<br>
+      SP stack pointer<br>
+      BP base pointer
+    </p>
+
+    <h3>Instruction set</h3>
+    <table class="instructions">
+      <thead>
+        <tr><td>Mnemo</td><td>Value</td><td></td><td>Syntax</td></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>LDA</td><td>000000</td><td>LoaD Accumulator</td><td>LDA adr</td>
+        </tr>
+        <tr>
+          <td>STA</td><td>000001</td><td>STore Accumulator</td><td>STA adr</td>
+        </tr>
+        <tr>
+          <td>ADD</td><td>000010</td><td>ADD memory to accu</td><td>ADD adr</td>
+        </tr>
+        <tr>
+          <td>SUB</td><td>000011</td><td>SUBtract memory</td><td>SUB adr</td>
+        </tr>
+        <tr>
+          <td>JMP</td><td>000100</td><td>JuMP</td><td>JMP adr</td>
+        </tr>
+        <tr>
+          <td>JMS</td><td>000101</td><td>Jump if MinuS</td><td>JMS adr</td>
+        </tr>
+        <tr>
+          <td>JPL</td><td>001000</td><td>Jump if PLus</td><td>JPL adr</td>
+        </tr>
+        <tr>
+          <td>JZE</td><td>001001</td><td>Jump if ZEro</td><td>JZE adr</td>
+        </tr>
+        <tr>
+          <td>JNM</td><td>011010</td><td>Jump if Not Minus</td><td>JNM adr</td>
+        </tr>
+        <tr>
+          <td>JNP</td><td>011011</td><td>Jump if Not Plus</td><td>JNP adr</td>
+        </tr>
+        <tr>
+          <td>JNZ</td><td>010100</td><td>Jump if Not Zero</td><td>JNZ adr</td>
+        </tr>
+        <tr>
+          <td>JSR</td><td>000110</td><td>Jump to SubRoutine</td><td>JSR adr</td>
+        </tr>
+        <tr>
+          <td>RTN</td><td>000111</td><td>ReTurN</td><td>RTN</td>
+        </tr>
+        <tr>
+          <td>PSH</td><td>001100</td><td>PuSH accu</td><td>PSH</td>
+        </tr>
+        <tr>
+          <td>POP</td><td>001101</td><td>POP into accu</td><td>POP</td>
+        </tr>
+        <tr>
+          <td>PSHM</td><td>001110</td><td>PUSh Memory</td><td>PSHM adr</td>
+        </tr>
+        <tr>
+          <td>POPM</td><td>001111</td><td>POP into Memory</td><td>POPM adr</td>
+        </tr>
+        <tr>
+          <td>LDAS</td><td>010101</td><td>LoaD Accu from Sp + x</td><td>LDAS x</td>
+        </tr>
+        <tr>
+          <td>STAS</td><td>010110</td><td>Store Accu to  Sp + x</td><td>STAS x</td>
+        </tr>
+        <tr>
+          <td>ADDS</td><td>010111</td><td>ADD Sp+x to accu</td><td>ADDS x</td>
+        </tr>
+        <tr>
+          <td>SUBS</td><td>011000</td><td>SUBtract Sp+x f. accu</td><td>SUBS x</td>
+        </tr>
+        <tr>
+          <td>SPBP</td><td>100111</td><td>Transfer SP to BP</td><td>SPBP</td>
+        </tr>
+        <tr>
+          <td>BPSP</td><td>100110</td><td>Transfer BP to SP</td><td>BPSP</td>
+        </tr>
+        <tr>
+          <td>POPB</td><td>100100</td><td>POP Bp</td><td>POPB</td>
+        </tr>
+        <tr>
+          <td>PSHB</td><td>100101</td><td>PuSH Bp</td><td>PSHB</td>
+        </tr>
+        <tr>
+          <td>LDAB</td><td>011110</td><td>LoaD accu from Bp + x</td><td>LDAB x</td>
+        </tr>
+        <tr>
+          <td>STAB</td><td>011111</td><td>Store accu to  Bp + x</td><td>STAB x</td>
+        </tr>
+        <tr>
+          <td>ADDB</td><td>100000</td><td>ADD Bp+x to accu</td><td>ADDB x</td>
+        </tr>
+        <tr>
+          <td>SUBB</td><td>100001</td><td>SUBtract Bp+x f. accu</td><td>SUBB x</td>
+        </tr>
+        <tr>
+          <td>NOP</td><td>010000</td><td>No OPeration</td><td>NOP</td>
+        </tr>
+        <tr>
+          <td>NEG</td><td>010001</td><td>NEGate accu</td><td>NEG</td>
+        </tr>
+        <tr>
+          <td>INC</td><td>010010</td><td>INCrement accu</td><td>INC</td>
+        </tr>
+        <tr>
+          <td>DEC</td><td>010011</td><td>DECrement accu</td><td>DEC</td>
+        </tr>
+        <tr>
+          <td>OUT</td><td>001010</td><td>OUTput memory</td><td>OUT adr</td>
+        </tr>
+        <tr>
+          <td>OUTS</td><td>011001</td><td>OUT Sp + x</td><td>OUTS x</td>
+        </tr>
+        <tr>
+          <td>OUTB</td><td>100010</td><td>OUT Bp + x</td><td>OUTB x</td>
+        </tr>
+        <tr>
+          <td>INM</td><td>011100</td><td>INput to Memory</td><td>INM adr</td>
+        </tr>
+        <tr>
+          <td>INS</td><td>011101</td><td>INput to Sp + x</td><td>INS x</td>
+        </tr>
+        <tr>
+          <td>INB</td><td>100011</td><td>INput to Bp + x</td><td>INB x</td>
+        </tr>
+        <tr>
+          <td>DEF</td><td>------</td><td>DEFine word</td><td>DEF value</td>
+        </tr>
+        <tr>
+          <td>END</td><td>001011</td><td>END of program</td><td>END</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Command line commands</h3>
+    <p>
+      h &mdash; show this help
+      l [file] &mdash; load a file<br>
+      a [file] &mdash; assemble a file<br>
+      r &mdash; start the execution<br>
+      c &mdash; clear and reset the simulator<br>
+      pc cell &mdash; set the program counter to the given address<br>
+      g cell &mdash; set the program counter and start the program<br>
+      d delay &mdash; set a new delay<br>
+      e [file] &mdash; open the editor<br>
+      b address &mdash; set a breakpoint at the given address<br>
+      togglegui &mdash; enable/disable visualization<br>
+      update &mdash; update the screen<br>
+      hardcore &mdash; set a very small delay<br>
+      quit &mdash; quit dc reloaded
+    </p>
+    <hr>
+    <p>
+      For a more detailed help, click the toolbar button "Open documentation"
+      in the main DC window to open the online documentation.
+    </p>
+  </body>
+</html>

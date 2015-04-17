@@ -21,6 +21,7 @@ setup(
         "dc",
         "dc.interface",
     ],
+    include_package_data=True,
     scripts=[
         "scripts/dc-reloaded",
     ],

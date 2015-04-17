@@ -58,6 +58,10 @@ Command line commands
 Parameters in brackets ([]) are optional, names in parentheses after
 the command name are the command aliases.
 
+.. rubric:: help(h)
+
+Open the built-in help.
+
 .. rubric:: load(l) *[filename]*
 
 Loads the given .dc file. If no filename is specified, a file dialog
