@@ -30,6 +30,11 @@ base = "Win32GUI" if sys.platform == "win32" else None
 
 build_exe_options = {
     "excludes": ["tkinter"],
+    "zip_includes": [
+        # Tuple source/dest file, otherwise they end up in wrong directories
+        ("dc/interface/static/short_help.html",
+         "dc/interface/static/short_help.html"),
+    ],
 }
 
 bdist_msi_options = {
