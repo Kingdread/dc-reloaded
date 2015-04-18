@@ -178,6 +178,7 @@ class Editor(Qt.QMainWindow):
                 except DCError as exc_error:
                     error = exc_error
         if error is None:
+            self.interface.update_screen()
             self.interface.raise_()
         else:
             tab.highlight_error_line(error.line_number)
