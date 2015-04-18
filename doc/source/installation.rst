@@ -84,6 +84,16 @@ Next, we need to copy the modules ``PyQt5`` and ``sip`` into our virtual env::
    You need to specify your version of Python (e.g. python3.3) if you are
    using a different version than 3.4
 
+.. note::
+
+    On some systems with Linux 64bit you have to use ``lib64`` instead of
+    ``lib``. If you are unsure about which directory is the right one, you can
+    run the following command to print out where PyQt5 is installed on your
+    system::
+
+        python3 -c "import os,PyQt5; print(os.path.dirname(PyQt5.__file__))"
+
+
 Now we need to install DC reloaded::
 
     $ cd ~/src/
