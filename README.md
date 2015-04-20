@@ -20,7 +20,7 @@ You can use DC to show how simple loops are implemented with conditional jumps,
 but also to demonstrate more complex procedures like subprograms with
 parameters and return values or recursion.
 
-Puorquoi?
+Pourquoi?
 --------
 
 *Why not?*
@@ -66,7 +66,7 @@ then you need to install [PyQt5][pyqt].
 
 ### Windows
 
-Windows installers can be found [here][wininstall] (currently only 64-bit)
+Windows installers can be found [here][wininstall].
 
 Examples
 --------
@@ -119,5 +119,5 @@ Have fun!
 [deja-license]: http://dejavu-fonts.org/wiki/License
 [pep8]: https://www.python.org/dev/peps/pep-0008/
 [pyqt]: http://www.riverbankcomputing.co.uk/software/pyqt/intro
-[documentation]: http://kingdread.de/dc-reloaded
+[documentation]: https://dc-reloaded.readthedocs.org
 [wininstall]: http://kingdread.de/dc-reloaded/dist
