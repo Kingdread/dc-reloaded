@@ -1,30 +1,8 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import subprocess
 import sys
 from cx_Freeze import setup, Executable
-
-
-def get_version():
-    try:
-        version = subprocess.check_output(["git", "describe", "--abbrev=0"])
-        version = version.decode("utf-8").lstrip("v")
-        return version.strip()
-    except Exception as e:
-        print(e, file=sys.stderr)
-        print("Couldn't get git version, falling back to setup.py version",
-              file=sys.stderr)
-
-    import re
-    version_re = r"""version *= *(["'])(.+)\1"""
-    with open("setup.py", "r") as setup_py:
-        content = setup_py.read()
-        match = re.search(version_re, content)
-        if match:
-            return match.group(2).lstrip("v")
-
-    print("No setup.py version found", file=sys.stderr)
-    return "undefined"
+from setupcommon import setupdata
 
 base = "Win32GUI" if sys.platform == "win32" else None
 
@@ -53,12 +31,10 @@ executables = [
 ]
 
 setup(
-    name="DC reloaded",
-    description="DC reloaded",
-    version=get_version(),
     executables=executables,
     options={
         "build_exe": build_exe_options,
         "bdist_msi": bdist_msi_options,
     },
+    **setupdata
 )
