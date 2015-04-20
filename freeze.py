@@ -8,8 +8,8 @@ from cx_Freeze import setup, Executable
 def get_version():
     try:
         version = subprocess.check_output(["git", "describe", "--abbrev=0"])
-        version = version.lstrip("v")
-        return version.strip().decode("utf-8")
+        version = version.decode("utf-8").lstrip("v")
+        return version.strip()
     except Exception as e:
         print(e, file=sys.stderr)
         print("Couldn't get git version, falling back to setup.py version",
