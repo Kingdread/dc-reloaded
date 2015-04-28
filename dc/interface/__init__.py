@@ -4,7 +4,7 @@
 Module contains the main Qt interface class
 """
 from ..errors import ScriptError, AssembleError, DCError, NoInputValue
-from ..util import number_of_digits, signed_value
+from ..util import number_of_digits, signed_value, get_file_content, splitlines
 from .rammodel import RAMModel, RAMStyler
 from .ui_main import Ui_DCWindow
 from .editor import Editor
@@ -321,12 +321,13 @@ class Interface(Qt.QMainWindow):
         """
         self.lastdir = os.path.dirname(name)
         try:
-            with open(name, "r") as input_file:
-                content = input_file.readlines()
+            content, encoding_ = get_file_content(name)
         except IOError:
             Qt.QMessageBox.critical(self, "Error",
                                     "Can't access {}".format(name))
             return
+        else:
+            content = splitlines(content)
         try:
             self.d.load(content)
             self.log_line("Loaded {}".format(name))
@@ -388,12 +389,13 @@ class Interface(Qt.QMainWindow):
         """
         self.lastdir = os.path.dirname(name)
         try:
-            with open(name, "r") as input_file:
-                content = input_file.readlines()
+            content, encoding_ = get_file_content(name)
         except IOError:
             Qt.QMessageBox.critical(self, "Error",
                                     "Can't access {}".format(name))
             return
+        else:
+            content = splitlines(content)
         try:
             assembled = self.d.assemble(content)
         except AssembleError as error:

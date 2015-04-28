@@ -6,6 +6,7 @@ Various utility functions and classes for DC
 import ast
 import logging
 import os
+import re
 import subprocess
 import sys
 
@@ -48,6 +49,35 @@ def number_of_digits(value, base=10):
         return 1
     from math import log, floor
     return floor(log(value) / log(base)) + 1
+
+
+def get_file_content(filename):
+    """
+    Try to return the file's content as text, interpreted as UTF-8 and if that
+    fails, windows-1252. If even that fails, the bytes are interpreted as ASCII
+    and every byte > 127 will be ignored.
+
+    Returns a (content, encoding)-tuple, useful when you need to re-save the
+    file.
+    """
+    with open(filename, "rb") as input_file:
+        content = input_file.read()
+    try:
+        return (content.decode("utf-8"), "utf-8")
+    except UnicodeDecodeError:
+        try:
+            return (content.decode("windows-1252"), "windows-1252")
+        except UnicodeDecodeError:
+            # http://xkcd.com/927/
+            return (content.decode("ascii", "ignore"), "ascii")
+
+
+def splitlines(text):
+    """
+    Split a text into single lines, no matter if the seperator is \\r, \\n or
+    \\r\\n (or even mixed).
+    """
+    return re.split(r"\r?\n|\r", text)
 
 
 def get_desktop_environment():

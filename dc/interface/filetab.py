@@ -6,7 +6,11 @@ Module containing the tab widget
 from .highlight import Highlighter
 from .. import util
 from .. import DC
+import logging
 from PyQt5 import Qt, QtCore
+
+
+logger = logging.getLogger(__name__)
 
 
 class FileTab(Qt.QWidget):
@@ -14,9 +18,10 @@ class FileTab(Qt.QWidget):
     This is a tab for a single file. They get created by the editor
     window, each tab represents a seperate file.
     """
-    def __init__(self, filename):
+    def __init__(self, filename, encoding="utf-8"):
         super().__init__()
         self.filename = filename
+        self.encoding = encoding
         self.setLayout(Qt.QGridLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.text = Qt.QPlainTextEdit()
@@ -52,7 +57,7 @@ class FileTab(Qt.QWidget):
         if not self.filename:
             self.save_as()
             return
-        with open(self.filename, "w") as output_file:
+        with open(self.filename, "w", encoding=self.encoding) as output_file:
             output_file.write(self.text.toPlainText())
         self.modified = False
 
@@ -63,7 +68,7 @@ class FileTab(Qt.QWidget):
         filename, _ = Qt.QFileDialog.getSaveFileName(self)
         if not filename:
             return
-        with open(filename, "w") as output_file:
+        with open(filename, "w", encoding=self.encoding) as output_file:
             output_file.write(self.text.toPlainText())
         self.filename = filename
         self.modified = False
@@ -105,11 +110,14 @@ class FileTab(Qt.QWidget):
         if not self.filename:
             return False
         try:
-            with open(self.filename, "r") as input_file:
-                self.text.setPlainText(input_file.read())
-        except IOError:
+            content, self.encoding = util.get_file_content(self.filename)
+        except IOError as io_error:
+            logger.debug("Can't load '%s': %s", self.filename, io_error)
             return False
         else:
+            logger.debug("Opened '%s' with encoding %s", self.filename,
+                         self.encoding)
+            self.text.setPlainText(content)
             self.modified = False
             return True
 
