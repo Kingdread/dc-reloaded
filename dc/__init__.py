@@ -322,40 +322,42 @@ class DC():
         """
         if clear:
             self.reset()
-        for no, line in enumerate(self.strip_comment(l) for l in lines):
+        lines = map(self.strip_comment, lines)
+        # line_number is the "human indexed" line number, this is good for
+        # showing but means that we need to use (line_number - 1) when passing
+        # it to ScriptError so the correct line is highlighted later, since the
+        # errors expect 0-based indexes
+        for line_number, line in enumerate(lines, 1):
             # compatibility bit, I don't know what this character is
             # for. It's there for files produced by the original
             # version of DC:
             if line == "\x1a":
                 continue
-            # Switch from zero-based indexing to one-based indexing
-            # (human indexes)
-            no += 1
             line = line.strip()
             if not line:
                 continue
-            line = line.split()
-            if len(line) < 2 or len(line) > 3:
-                raise ScriptError(
-                    "Invalid line {}: {}"
-                    .format(no, " ".join(line)), no - 1)
+            parts = line.split()
+            if len(parts) < 2 or len(parts) > 3:
+                raise ScriptError("Invalid line {}: {}"
+                                  .format(line_number, line), line_number - 1)
             try:
-                addr = int(line[0])
-                if addr > self.max_address or addr < 0:
-                    raise ScriptError(
-                        "{} is outside of the available memory (line {})"
-                        .format(addr, no), no - 1)
+                address = int(parts[0])
+                if address > self.max_address or address < 0:
+                    raise InvalidAddress("{} is outside of the available memor"
+                                         "y (line {})".format(address,
+                                                              line_number),
+                                         line_number - 1)
             except ValueError:
-                raise InvalidAddress(
-                    "Not a valid address: {} (line {})"
-                    .format(line[0], no), no - 1)
+                raise InvalidAddress("Not a valid address: {} (line {})"
+                                     .format(parts[0], line_number),
+                                     line_number - 1)
             try:
-                full = self.parse_command(line[1:])
+                full = self.parse_command(parts[1:])
             except DCError as error:
-                error.msg += " (line {})".format(no)
-                error.line_number = no - 1
+                error.msg += " (line {})".format(line_number)
+                error.line_number = line_number - 1
                 raise error
-            self.ram[addr] = full
+            self.ram[address] = full
 
     def get_memory(self):
         """
