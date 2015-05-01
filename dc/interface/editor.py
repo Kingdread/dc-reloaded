@@ -181,5 +181,6 @@ class Editor(Qt.QMainWindow):
             self.interface.update_screen()
             self.interface.raise_()
         else:
-            tab.highlight_error_line(error.line_number)
+            if error.line_number is not None:
+                tab.highlight_error_line(error.line_number)
             Qt.QMessageBox.critical(self, "Error", str(error))
