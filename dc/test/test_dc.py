@@ -55,6 +55,16 @@ class DcTestCase(unittest.TestCase):
             with self.subTest(test=test):
                 self.assertEqual(self.dc.strip_comment(test), expect)
 
+    def test_tokenize(self):
+        lines = [
+            "The Devil:",
+            "Is",
+            "Near:",
+        ]
+        expected = [("The", 1), ("Devil", 1), ("Is", 2), ("Near", 3)]
+        tokens = list(self.dc.tokenize(lines))
+        self.assertEqual(tokens, expected)
+
     def test_assemble(self):
         """Assert that the assembler is outputting the right program"""
         # This is actually harder than you might think. As I see it, there are

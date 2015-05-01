@@ -145,36 +145,3 @@ def fix_qt_icon_theme():
             paths.append("/usr/share/icons")
             QtGui.QIcon.setThemeSearchPaths(paths)
             QtGui.QIcon.setThemeName(icon_theme)
-
-
-class IDict(dict):
-    """
-    Case-Insensitive dict. Keys can be everything that has a .lower()
-    method.
-    """
-    def __init__(self, init=None, **kwargs):
-        super().__init__()
-        if init is not None:
-            try:
-                init = init.items()
-            except AttributeError:
-                pass
-            for key, val in init:
-                self[key] = val
-        for key, val in kwargs.items():
-            self[key] = val
-
-    def __setitem__(self, key, value):
-        super().__setitem__(key.lower(), value)
-
-    def __getitem__(self, key):
-        return super().__getitem__(key.lower())
-
-    def __delitem__(self, key):
-        super().__delitem__(key.lower())
-
-    def get(self, key, d):
-        return super().get(key.lower(), d)
-
-    def __contains__(self, key):
-        return super().__contains__(key.lower())

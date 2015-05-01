@@ -7,7 +7,12 @@ Main module of the DC
 from .parts import Register, RAM
 from .errors import (NoInputValue, ScriptError, AssembleError, Overflow,
                      InvalidAddress, DCError, Breakpoint)
-from .util import IDict
+from collections import namedtuple
+
+
+Token = namedtuple("Token", ["token", "line_number"])
+Instruction = namedtuple("Instruction", ["number", "opcode", "arg",
+                                         "source_line"])
 
 
 class DCConfig():
@@ -78,6 +83,11 @@ class DC():
     }
     # Mapping CODE - NAME
     mnemo = dict((val, key) for key, val in opcodes.items())
+
+    opcodes_without_arg = {
+        "RTN", "PSH", "POP", "SPBP", "BPSP", "POPB", "PSHB", "NOP", "NEG",
+        "INC", "DEC", "END",
+    }
 
     def __init__(self, config):
         """
@@ -184,6 +194,27 @@ class DC():
         else:
             return line[:index]
 
+    @staticmethod
+    def tokenize(lines):
+        """
+        Create a stream of tokens created by splitting the input lines.
+        Returns a generator of Token-objects, recording both the token and the
+        line number in the source.
+
+        >>> list(tokenize(["Castles In", "The Air"]))
+        [Token(token='Castles', line_number=1),
+        Token(token='In', line_number=1),
+        Token(token='The', line_number=2),
+        Token(token='Air', line_number=2)]
+        """
+        # We start counting the lines with 1 as humans would do
+        for line_number, line in enumerate(lines, 1):
+            line = DC.strip_comment(line)
+            line = line.strip()
+            tokens = line.split()
+            tokens = (token.strip(":") for token in tokens)
+            yield from (Token(token, line_number) for token in tokens if token)
+
     @classmethod
     def assemble(cls, lines):
         # pylint: disable=too-many-branches
@@ -195,74 +226,83 @@ class DC():
         >>> assemble(["INM 20", "OUT 20"])
         ["0 INM 20", "1 OUT 20"]
         """
-        v = IDict()
-        t = []
-        no = 0
-        # Part one: get lines and local variables
-        for lno, line in enumerate(cls.strip_comment(l) for l in lines):
-            # Switch from zero based index to one based index (human
-            # index):
-            lno += 1
-            line = line.strip()
-            if not line:
-                continue
-            line = line.split()
-            l = None
-            while line:
-                token = line.pop(0)
-                if token.upper() in cls.opcodes or token.upper() == "DEF":
-                    # command
-                    if line:
-                        t.append([lno, token, line.pop(0)])
-                    else:
-                        t.append([lno, token])
-                    no += 1
-                    l = None
-                    continue
-                elif token.upper() == "EQUAL":
-                    if l in v:
-                        raise AssembleError(
-                            "Variable {} already assigned (line {})"
-                            .format(l, lno), lno - 1)
-                    v[l] = int(line.pop(0))
-                    break
-                else:
-                    token = token.rstrip(":")
-                    # skip if the next token is EQUAL, e.g. the line is
-                    # baum EQUAL 1
-                    # otherwise it will lead to errors due to multiple labels
-                    # with the same name
-                    if line and line[0].upper() == "EQUAL":
-                        l = token
-                        continue
-                    if token in v:
-                        raise AssembleError(
-                            "Label {} already defined (line {})"
-                            .format(token, lno), lno - 1)
-                    v[token] = no
-                l = token
-
-        # Part two: glue everything together, strip out labels, replace them
-        # with the numbers from part one
-        res = []
-        for no, token in enumerate(t):
-            if len(token) == 3:
-                # Apparently, JMP done: is just as valid as JMP done
-                # so strip off the colon
-                adr = token[2].strip(": \r\n")
-                if adr in v:
-                    adr = v[adr]
+        labels = {}
+        # Needed to keep track of all possible labels since this is permitted:
+        # ALPHA
+        # BETA
+        # GAMMA DEF 20
+        # now ALPHA BETA and GAMMA will all point to DEF 20
+        future_labels = []
+        instruction_number = 0
+        tokens = cls.tokenize(lines)
+        program = []
+        for token_obj in tokens:
+            token = token_obj.token.upper()
+            if token == "EQUAL":
+                if not future_labels:
+                    raise AssembleError("Expected label (line {})"
+                                        .format(token_obj.line_number))
+                # EQUAL only takes the label directly in front of it
+                label = future_labels.pop()
+                try:
+                    value = next(tokens).token
+                except StopIteration:
+                    raise AssembleError("Expected value (line {})"
+                                        .format(token_obj.line_number))
+                if label in labels:
+                    raise AssembleError("Label {} already defined"
+                                        .format(label))
+                labels[label] = value
+            elif token in cls.opcodes or token == "DEF":
+                if token in cls.opcodes_without_arg:
+                    arg = None
                 else:
                     try:
-                        adr = int(adr)
-                    except ValueError:
-                        raise AssembleError(
-                            "Invalid address: {} (line {})"
-                            .format(adr, token[0]), token[0] - 1)
-                res.append("{} {} {}".format(no, token[1], adr))
+                        arg = next(tokens).token.upper()
+                    except StopIteration:
+                        raise AssembleError("Expected argument (line {})"
+                                            .format(token_obj.line_number))
+                program.append(Instruction(instruction_number, token, arg,
+                                           token_obj.line_number))
+                # Every label that came before this instruction will now point
+                # at this instruction
+                for label in future_labels:
+                    if label in labels:
+                        raise AssembleError("Label {} already defined"
+                                            .format(label))
+                    labels[label] = instruction_number
+                future_labels.clear()
+                instruction_number += 1
+            # Everything that is not a valid instruction is treated as a
+            # potential label
             else:
-                res.append("{} {}".format(no, token[1]))
-        return res
+                future_labels.append(token)
+
+        result = []
+        for instruction in program:
+            if instruction.arg is None:
+                result.append("{} {}".format(instruction.number,
+                                             instruction.opcode))
+                continue
+            arg = labels.get(instruction.arg)
+            if arg is None:
+                try:
+                    # We need this for stuff like DEF 20, otherwise we'd get
+                    # the error "Invalid label" for 20. Note that this allows
+                    # the following program to work even though it doesn't work
+                    # in the original DC:
+                    # INM 20
+                    # LDA 20
+                    # The way we do it is probably easier than keeping track of
+                    # every instruction that takes a numeric argument instead
+                    # of a label.
+                    arg = int(instruction.arg)
+                except ValueError:
+                    raise AssembleError("Invalid label (line {})"
+                                        .format(instruction.source_line))
+            result.append("{} {} {}".format(instruction.number,
+                                            instruction.opcode, arg))
+        return result
 
     def load(self, lines, clear=True):
         """
