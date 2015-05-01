@@ -240,18 +240,23 @@ class DC():
             token = token_obj.token.upper()
             if token == "EQUAL":
                 if not future_labels:
+                    # line_number is the "human readable" line number, but the
+                    # error expects 0-based indexes
                     raise AssembleError("Expected label (line {})"
-                                        .format(token_obj.line_number))
+                                        .format(token_obj.line_number),
+                                        token_obj.line_number - 1)
                 # EQUAL only takes the label directly in front of it
                 label = future_labels.pop()
                 try:
                     value = next(tokens).token
                 except StopIteration:
                     raise AssembleError("Expected value (line {})"
-                                        .format(token_obj.line_number))
+                                        .format(token_obj.line_number),
+                                        token_obj.line_number - 1)
                 if label in labels:
-                    raise AssembleError("Label {} already defined"
-                                        .format(label))
+                    raise AssembleError("Label {} already defined (line {})"
+                                        .format(label, token_obj.line_number),
+                                        token_obj.line_number - 1)
                 labels[label] = value
             elif token in cls.opcodes or token == "DEF":
                 if token in cls.opcodes_without_arg:
@@ -261,15 +266,18 @@ class DC():
                         arg = next(tokens).token.upper()
                     except StopIteration:
                         raise AssembleError("Expected argument (line {})"
-                                            .format(token_obj.line_number))
+                                            .format(token_obj.line_number),
+                                            token_obj.line_number - 1)
                 program.append(Instruction(instruction_number, token, arg,
                                            token_obj.line_number))
                 # Every label that came before this instruction will now point
                 # at this instruction
                 for label in future_labels:
                     if label in labels:
-                        raise AssembleError("Label {} already defined"
-                                            .format(label))
+                        raise AssembleError("Label {} already defined "
+                                            "(line {})".format(
+                                                label, token_obj.line_number),
+                                            token_obj.line_number - 1)
                     labels[label] = instruction_number
                 future_labels.clear()
                 instruction_number += 1
@@ -299,7 +307,8 @@ class DC():
                     arg = int(instruction.arg)
                 except ValueError:
                     raise AssembleError("Invalid label (line {})"
-                                        .format(instruction.source_line))
+                                        .format(instruction.source_line),
+                                        instruction.source_line - 1)
             result.append("{} {} {}".format(instruction.number,
                                             instruction.opcode, arg))
         return result
